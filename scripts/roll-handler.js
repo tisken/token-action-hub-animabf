@@ -1,7 +1,5 @@
-export let RollHandler = null
-
-Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
-    RollHandler = class RollHandler extends coreModule.api.RollHandler {
+export function createRollHandlerClass (coreModule) {
+    return class RollHandler extends coreModule.api.RollHandler {
         /** @override */
         async handleActionClick (event, encodedPayload) {
             const payload = decodeURIComponent(encodedPayload).split('|', 2)
@@ -67,8 +65,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const combat = actor.system.combat
             const val = combat[actionId]?.final?.value ?? 0
             const die = val >= 200 ? '1d100xamastery' : '1d100xa'
-            const formula = `${die} + ${val}`
-            const roll = new Roll(formula, actor.getRollData())
+            const roll = new Roll(`${die} + ${val}`, actor.getRollData())
             await roll.evaluate()
             const label = game.i18n.localize(`tokenActionHud.animabf.${actionId}`)
             await roll.toMessage({
@@ -81,21 +78,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const weapon = actor.items.get(weaponId)
             if (!weapon) return
 
-            // Try to use the system's attack dialog if available
             const sheet = actor.sheet
             if (sheet) {
                 const fakeEvent = { currentTarget: { dataset: { weaponId } }, shiftKey: false }
                 try {
-                    const { createWeaponAttack } = await import(
+                    const mod = await import(
                         /* webpackIgnore: true */
                         '../../../systems/animabf/module/actor/utils/buttonCallbacks/createWeaponAttack.js'
                     )
-                    createWeaponAttack(sheet, fakeEvent)
+                    mod.createWeaponAttack(sheet, fakeEvent)
                     return
-                } catch { /* fallback below */ }
+                } catch { /* fallback */ }
             }
 
-            // Fallback: simple roll
             const atk = weapon.system.attack?.final?.value ?? 0
             const die = atk >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${atk}`, actor.getRollData())
@@ -115,16 +110,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (sheet) {
                 const fakeEvent = { currentTarget: { dataset: { spellId, grade } }, shiftKey: false }
                 try {
-                    const { castSpellGrade } = await import(
+                    const mod = await import(
                         /* webpackIgnore: true */
                         '../../../systems/animabf/module/actor/utils/buttonCallbacks/castSpellGrade.js'
                     )
-                    await castSpellGrade(sheet, fakeEvent)
+                    await mod.castSpellGrade(sheet, fakeEvent)
                     return
-                } catch { /* fallback below */ }
+                } catch { /* fallback */ }
             }
 
-            // Fallback
             const mp = actor.system.mystic?.magicProjection?.imbalance?.offensive?.base?.value ?? 0
             const die = mp >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${mp}`, actor.getRollData())
@@ -144,16 +138,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (sheet) {
                 const fakeEvent = { currentTarget: { dataset: { powerId } }, shiftKey: false }
                 try {
-                    const { castPsychicPower } = await import(
+                    const mod = await import(
                         /* webpackIgnore: true */
                         '../../../systems/animabf/module/actor/utils/buttonCallbacks/castPsychicPower.js'
                     )
-                    await castPsychicPower(sheet, fakeEvent)
+                    await mod.castPsychicPower(sheet, fakeEvent)
                     return
-                } catch { /* fallback below */ }
+                } catch { /* fallback */ }
             }
 
-            // Fallback
             const pp = actor.system.psychic?.psychicPotential?.final?.value ?? 0
             const roll = new Roll(`1d100 + ${pp}`, actor.getRollData())
             await roll.evaluate()
@@ -169,7 +162,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 return
             }
 
-            // Fallback
             const { secondaries } = actor.system
             let val = 0
             for (const groupKey in secondaries) {
@@ -247,4 +239,4 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
         }
     }
-})
+}

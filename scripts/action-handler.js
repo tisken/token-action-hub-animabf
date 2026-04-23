@@ -1,10 +1,8 @@
-import { ACTION_TYPE, SECONDARY_ABILITIES, RESISTANCES, CHARACTERISTICS } from './constants.js'
-import { Utils } from './utils.js'
+import { SECONDARY_ABILITIES, RESISTANCES, CHARACTERISTICS } from './constants.js'
+import { getSetting } from './utils.js'
 
-export let ActionHandler = null
-
-Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
-    ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
+export function createActionHandlerClass (coreModule) {
+    return class ActionHandler extends coreModule.api.ActionHandler {
         /** @override */
         async buildSystemActions (groupIds) {
             this.actorType = this.actor?.type
@@ -28,8 +26,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             ])
         }
 
-        // ── Combat Skills (Attack / Block / Dodge) ──
-
         #buildCombatSkills () {
             const combat = this.actor.system.combat
             const actions = []
@@ -38,53 +34,45 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             actions.push({
                 id: 'combat-attack',
                 name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.attack')} (${attackVal})`,
-                encodedValue: ['combat', 'attack'].join('|'),
-                icon1: '<i class="fas fa-swords"></i>'
+                encodedValue: ['combat', 'attack'].join('|')
             })
 
             const blockVal = combat.block?.final?.value ?? 0
             actions.push({
                 id: 'combat-block',
                 name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.block')} (${blockVal})`,
-                encodedValue: ['combat', 'block'].join('|'),
-                icon1: '<i class="fas fa-shield-alt"></i>'
+                encodedValue: ['combat', 'block'].join('|')
             })
 
             const dodgeVal = combat.dodge?.final?.value ?? 0
             actions.push({
                 id: 'combat-dodge',
                 name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.dodge')} (${dodgeVal})`,
-                encodedValue: ['combat', 'dodge'].join('|'),
-                icon1: '<i class="fas fa-running"></i>'
+                encodedValue: ['combat', 'dodge'].join('|')
             })
 
             this.addActions(actions, { id: 'combat-skills', type: 'system' })
         }
 
-        // ── Weapons ──
-
         #buildWeapons () {
             const weapons = this.actor.items.filter(i => i.type === 'weapon')
             if (!weapons.length) return
 
+            const showDetails = getSetting('showWeaponDetails', true)
             const actions = weapons.map(w => {
                 const atk = w.system.attack?.final?.value ?? 0
                 const dmg = w.system.damage?.final?.value ?? 0
-                const showDetails = Utils.getSetting('showWeaponDetails', true)
                 const info = showDetails ? ` [${atk}/${dmg}]` : ''
                 return {
                     id: w.id,
                     name: `${w.name}${info}`,
                     encodedValue: ['weapon', w.id].join('|'),
-                    img: w.img,
-                    info1: w.system.equipped?.value ? { text: '✓' } : null
+                    img: w.img
                 }
             })
 
             this.addActions(actions, { id: 'weapons', type: 'system' })
         }
-
-        // ── Armors ──
 
         #buildArmors () {
             const armors = this.actor.items.filter(i => i.type === 'armor')
@@ -100,13 +88,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.addActions(actions, { id: 'armors', type: 'system' })
         }
 
-        // ── Spells ──
-
         #buildSpells () {
             const spells = this.actor.items.filter(i => i.type === 'spell')
             if (!spells.length) return
 
-            const showGrades = Utils.getSetting('showSpellGrades', true)
+            const showGrades = getSetting('showSpellGrades', true)
 
             if (showGrades) {
                 const grades = ['base', 'intermediate', 'advanced', 'arcane']
@@ -138,8 +124,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
         }
 
-        // ── Summoning ──
-
         #buildSummoning () {
             const summoning = this.actor.system.mystic?.summoning
             if (!summoning) return
@@ -156,8 +140,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.addActions(actions, { id: 'summoning', type: 'system' })
         }
 
-        // ── Psychic Powers ──
-
         #buildPsychicPowers () {
             const powers = this.actor.items.filter(i => i.type === 'psychicPower')
             if (!powers.length) return
@@ -172,8 +154,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.addActions(actions, { id: 'psychic-powers', type: 'system' })
         }
 
-        // ── Ki Skills ──
-
         #buildKiSkills () {
             const skills = this.actor.system.domine?.kiSkills ?? []
             if (!skills.length) return
@@ -186,8 +166,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             this.addActions(actions, { id: 'ki-skills', type: 'system' })
         }
-
-        // ── Techniques ──
 
         #buildTechniques () {
             const techniques = this.actor.items.filter(i => i.type === 'technique')
@@ -203,8 +181,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.addActions(actions, { id: 'techniques', type: 'system' })
         }
 
-        // ── Martial Arts ──
-
         #buildMartialArts () {
             const arts = this.actor.system.domine?.martialArts ?? []
             if (!arts.length) return
@@ -217,8 +193,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             this.addActions(actions, { id: 'martial-arts', type: 'system' })
         }
-
-        // ── Secondary Abilities ──
 
         #buildSecondaryAbilities () {
             for (const [groupKey, abilities] of Object.entries(SECONDARY_ABILITIES)) {
@@ -241,8 +215,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
         }
 
-        // ── Characteristics ──
-
         #buildCharacteristics () {
             const primaries = this.actor.system.characteristics?.primaries
             if (!primaries) return
@@ -261,8 +233,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             this.addActions(actions, { id: 'characteristics', type: 'system' })
         }
-
-        // ── Resistances ──
 
         #buildResistances () {
             const resistances = this.actor.system.characteristics?.secondaries?.resistances
@@ -283,8 +253,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.addActions(actions, { id: 'resistances', type: 'system' })
         }
 
-        // ── Initiative ──
-
         #buildInitiative () {
             const init = this.actor.system.characteristics?.secondaries?.initiative
             if (!init) return
@@ -293,21 +261,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actions = [{
                 id: 'initiative',
                 name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.initiative')} (${val})`,
-                encodedValue: ['initiative', 'initiative'].join('|'),
-                icon1: '<i class="fas fa-bolt"></i>'
+                encodedValue: ['initiative', 'initiative'].join('|')
             }]
 
             this.addActions(actions, { id: 'initiative', type: 'system' })
         }
 
-        // ── Utility ──
-
         #buildUtility () {
             const combatActions = [{
                 id: 'endTurn',
                 name: coreModule.api.Utils.i18n('tokenActionHud.endTurn'),
-                encodedValue: ['utility', 'endTurn'].join('|'),
-                icon1: '<i class="fas fa-hourglass-end"></i>'
+                encodedValue: ['utility', 'endTurn'].join('|')
             }]
             this.addActions(combatActions, { id: 'combat', type: 'system' })
 
@@ -326,4 +290,4 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.addActions(tokenActions, { id: 'token', type: 'system' })
         }
     }
-})
+}
