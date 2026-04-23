@@ -51,7 +51,7 @@ Token Action HUD es un HUD reposicionable de acciones para un token seleccionado
 ### Instalación por Manifest URL
 
 1. En Foundry VTT, ve a **Configuración > Módulos > Instalar Módulo**.
-2. Pega la URL del manifest: `https://raw.githubusercontent.com/tisken/token-action-hub-animabf/main/module.json`
+2. Pega la URL del manifest: `https://github.com/tisken/token-action-hub-animabf/releases/latest/download/module.json`
 3. Haz clic en **Instalar**.
 
 ---

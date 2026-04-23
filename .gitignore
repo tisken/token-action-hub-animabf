@@ -1,4 +1,2 @@
 node_modules/
-scripts/*.min.js
-scripts/*.min.js.map
 package-lock.json
