@@ -4,7 +4,7 @@ import { createRollHandlerClass } from './roll-handler.js'
 import { buildDefaults } from './defaults.js'
 import { register as registerSettings } from './settings.js'
 
-Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
+Hooks.on('tokenActionHudCoreApiReady', async (coreModule) => {
     const ActionHandler = createActionHandlerClass(coreModule)
     const RollHandler = createRollHandlerClass(coreModule)
     const defaults = buildDefaults(coreModule)
