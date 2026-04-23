@@ -7,11 +7,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
         /** @override */
         async buildSystemActions (groupIds) {
-            console.log('TAH AnimaBF | buildSystemActions called')
-            console.log('TAH AnimaBF | actor:', this.actor)
-            console.log('TAH AnimaBF | actor.type:', this.actor?.type)
-            console.log('TAH AnimaBF | actor.system keys:', this.actor?.system ? Object.keys(this.actor.system) : 'no system')
-            if (!this.actor) { console.log('TAH AnimaBF | No actor, returning'); return }
+            if (!this.actor) return
 
             const builders = [
                 () => this.#buildCombatSkills(),
@@ -29,8 +25,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 () => this.#buildInitiative(),
                 () => this.#buildUtility()
             ]
-            console.log('TAH AnimaBF | groupHandler groups:', Object.keys(this.groupHandler.groups))
-            console.log('TAH AnimaBF | groupHandler group ids:', Object.values(this.groupHandler.groups).map(g => g.id + ' [' + g.type + '] nestId=' + g.nestId))
             for (const fn of builders) {
                 try { await fn() } catch (e) { console.error('TAH AnimaBF |', e) }
             }
@@ -58,9 +52,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 { id: 'combat-block', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.block')} (${this.#getFinal(combat.block)})`, encodedValue: 'combat|block' },
                 { id: 'combat-dodge', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.dodge')} (${this.#getFinal(combat.dodge)})`, encodedValue: 'combat|dodge' }
             ]
-            console.log('TAH AnimaBF | #buildCombatSkills adding', actions.length, 'actions to combat-skills')
-            const found = this.groupHandler.getGroups({ id: 'combat-skills', type: 'system' })
-            console.log('TAH AnimaBF | groups matching combat-skills:', found.length, found.map(g => g.nestId))
             this.addActions(actions, { id: 'combat-skills', type: 'system' })
         }
 

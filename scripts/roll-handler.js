@@ -48,6 +48,33 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #rollWeaponAttack (actor, weaponId) {
             const weapon = actor.items.get(weaponId)
             if (!weapon) return
+
+            const targets = game.user.targets
+            const hasTargets = targets && targets.size > 0
+
+            if (hasTargets) {
+                const sheet = actor.sheet
+                const token = sheet?.token ?? actor.getActiveTokens?.()?.[0]
+                if (token) {
+                    try {
+                        const snapshotTargets = [...targets].map(t => ({
+                            tokenId: t.id ?? t.document?.id,
+                            actorId: t.actor?.id
+                        })).filter(t => t.tokenId && t.actorId)
+
+                        const DialogClass = game.animabf?.dialogs?.AttackConfigurationDialog
+                            ?? globalThis.AttackConfigurationDialog
+                        if (DialogClass) {
+                            new DialogClass(
+                                { attacker: token, weaponId, targets: snapshotTargets },
+                                { allowed: true }
+                            )
+                            return
+                        }
+                    } catch (e) { console.warn('TAH AnimaBF | AttackConfigurationDialog fallback', e) }
+                }
+            }
+
             const atk = weapon.system.attack?.final?.value ?? 0
             const die = atk >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${atk}`, actor.getRollData())

@@ -102,11 +102,11 @@
     "tokenActionHud.animabf.characteristic.power": "Poder",
     "tokenActionHud.animabf.characteristic.willPower": "Voluntad",
 
-    "tokenActionHud.animabf.resistance.physical": "Física",
-    "tokenActionHud.animabf.resistance.disease": "Enfermedad",
-    "tokenActionHud.animabf.resistance.poison": "Veneno",
-    "tokenActionHud.animabf.resistance.magic": "Mágica",
-    "tokenActionHud.animabf.resistance.psychic": "Psíquica",
+    "tokenActionHud.animabf.resistance.physical": "RF",
+    "tokenActionHud.animabf.resistance.disease": "RE",
+    "tokenActionHud.animabf.resistance.poison": "RV",
+    "tokenActionHud.animabf.resistance.magic": "RM",
+    "tokenActionHud.animabf.resistance.psychic": "RP",
 
     "tokenActionHud.animabf.grade.base": "Base",
     "tokenActionHud.animabf.grade.intermediate": "Intermedio",
