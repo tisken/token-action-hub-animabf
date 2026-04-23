@@ -91,40 +91,63 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #buildSpells () {
             if (!this.#hasMystic()) return
             const mystic = this.actor.system.mystic
-            const actions = []
 
             // Projections first
+            const projActions = []
             const mpOff = this.#getFinal(mystic.magicProjection?.imbalance?.offensive)
             const mpDef = this.#getFinal(mystic.magicProjection?.imbalance?.defensive)
             if (mpOff > 0 || mpDef > 0) {
-                actions.push({ id: 'magic-projection-off', name: `PM Ofn. (${mpOff})`, encodedValue: 'magicProjection|offensive' })
-                actions.push({ id: 'magic-projection-def', name: `PM Def. (${mpDef})`, encodedValue: 'magicProjection|defensive' })
+                projActions.push({ id: 'magic-projection-off', name: `PM Ofn. (${mpOff})`, encodedValue: 'magicProjection|offensive' })
+                projActions.push({ id: 'magic-projection-def', name: `PM Def. (${mpDef})`, encodedValue: 'magicProjection|defensive' })
+            }
+            if (projActions.length) this.addActions(projActions, { id: 'spells', type: 'system' })
+
+            // Spells grouped by via, each spell has B/I/Av/A grade buttons
+            const spells = this.actor.items.filter(s => s.type === 'spell')
+            if (!spells.length) return
+
+            const parentGroupData = { id: 'spells', type: 'system' }
+            const GRADE_LABELS = { base: 'B', intermediate: 'I', advanced: 'Av', arcane: 'A' }
+            const GRADES = ['base', 'intermediate', 'advanced', 'arcane']
+
+            // Group spells by via
+            const byVia = new Map()
+            for (const spell of spells) {
+                const via = spell.system.via?.value || 'freeAccess'
+                if (!byVia.has(via)) byVia.set(via, [])
+                byVia.get(via).push(spell)
             }
 
-            // Spells sorted by level
-            const spells = this.actor.items.filter(s => s.type === 'spell')
-            if (spells.length) {
-                const sorted = [...spells].sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
-                const showGrades = Utils.getSetting('showSpellGrades', true)
-                const GRADE_LABELS = { base: 'Base', intermediate: 'Int.', advanced: 'Avz.', arcane: 'Arc.' }
-                if (showGrades) {
-                    for (const spell of sorted) {
-                        for (const grade of ['base', 'intermediate', 'advanced', 'arcane']) {
-                            const zeon = this.#val(spell.system.grades?.[grade]?.zeon)
-                            if (zeon <= 0) continue
-                            const lvl = spell.system.level?.value ?? 0
-                            actions.push({ id: `${spell.id}-${grade}`, name: `[${lvl}] ${spell.name} (${GRADE_LABELS[grade]})`, encodedValue: `spell|${spell.id}>${grade}`, img: spell.img, info1: { text: `${zeon}z` } })
-                        }
-                    }
-                } else {
-                    for (const s of sorted) {
-                        const lvl = s.system.level?.value ?? 0
-                        actions.push({ id: s.id, name: `[${lvl}] ${s.name}`, encodedValue: `spell|${s.id}>base`, img: s.img })
+            // Sort vias alphabetically, sort spells within each via by level
+            const sortedVias = [...byVia.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+
+            for (const [via, viaSpells] of sortedVias) {
+                const viaName = i(`anima.ui.mystic.spell.via.${via}.title`)
+                const viaGroupId = `spells-via-${via}`
+                const viaGroupData = { id: viaGroupId, name: viaName, type: 'system-derived' }
+
+                this.addGroup(viaGroupData, parentGroupData)
+
+                const sorted = viaSpells.sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
+                const actions = []
+
+                for (const spell of sorted) {
+                    // One action per available grade
+                    for (const grade of GRADES) {
+                        const zeon = this.#val(spell.system.grades?.[grade]?.zeon)
+                        if (zeon <= 0) continue
+                        actions.push({
+                            id: `${spell.id}-${grade}`,
+                            name: `${spell.name} (${GRADE_LABELS[grade]})`,
+                            encodedValue: `spell|${spell.id}>${grade}`,
+                            img: spell.img,
+                            info1: { text: `${zeon}z` }
+                        })
                     }
                 }
-            }
 
-            if (actions.length) this.addActions(actions, { id: 'spells', type: 'system' })
+                if (actions.length) this.addActions(actions, viaGroupData)
+            }
         }
 
         #buildSummoning () {

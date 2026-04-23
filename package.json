@@ -1,6 +1,6 @@
 {
   "name": "token-action-hud-animabf",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Token Action HUD for Anima Beyond Fantasy system in Foundry VTT",
   "license": "CC-BY-4.0",
   "type": "module",
