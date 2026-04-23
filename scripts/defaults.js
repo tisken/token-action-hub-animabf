@@ -27,7 +27,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name: 'Místico',
                 groups: [
                     { ...groups.spells, nestId: 'mystic_spells' },
-                    { ...groups.spellBook, nestId: 'mystic_spell-book' },
                     { ...groups.summoning, nestId: 'mystic_summoning' }
                 ]
             },
@@ -36,8 +35,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'psychic',
                 name: 'Psíquico',
                 groups: [
-                    { ...groups.psychicPowers, nestId: 'psychic_psychic-powers' },
-                    { ...groups.mentalPowers, nestId: 'psychic_mental-powers' }
+                    { ...groups.psychicPowers, nestId: 'psychic_psychic-powers' }
                 ]
             },
             {
