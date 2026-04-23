@@ -1,0 +1,61 @@
+{
+  "id": "token-action-hud-animabf",
+  "title": "Token Action HUD Anima Beyond Fantasy",
+  "description": "Token Action HUD is a repositionable HUD of actions for a selected token, compatible with the Anima Beyond Fantasy system.",
+  "authors": [
+    {
+      "name": "Community"
+    }
+  ],
+  "url": "",
+  "flags": {},
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14.360"
+  },
+  "esmodules": [
+    "./scripts/token-action-hud-animabf.min.js"
+  ],
+  "styles": [],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    },
+    {
+      "lang": "es",
+      "name": "Español",
+      "path": "languages/es.json"
+    }
+  ],
+  "packs": [],
+  "relationships": {
+    "systems": [
+      {
+        "id": "animabf",
+        "type": "system",
+        "compatibility": {
+          "minimum": "2.2.0",
+          "verified": "2.2.1"
+        }
+      }
+    ],
+    "requires": [
+      {
+        "id": "token-action-hud-core",
+        "type": "module",
+        "compatibility": {
+          "minimum": "2.1.0",
+          "verified": "2.1.1",
+          "maximum": "2.1.99"
+        }
+      }
+    ]
+  },
+  "socket": false,
+  "protected": false,
+  "coreTranslation": false,
+  "library": false
+}

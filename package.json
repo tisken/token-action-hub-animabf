@@ -1,0 +1,18 @@
+{
+  "name": "token-action-hud-animabf",
+  "version": "1.0.0",
+  "description": "Token Action HUD for Anima Beyond Fantasy system in Foundry VTT",
+  "license": "CC-BY-4.0",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -wcm"
+  },
+  "dependencies": {
+    "@rollup/plugin-terser": "^1.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-multi-entry": "^6.0.1",
+    "rollup": "^4.24.0"
+  }
+}
