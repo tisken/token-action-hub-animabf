@@ -92,7 +92,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (!this.#hasMystic()) return
             const mystic = this.actor.system.mystic
 
-            // Projections first
+            // Projections
             const projActions = []
             const mpOff = this.#getFinal(mystic.magicProjection?.imbalance?.offensive)
             const mpDef = this.#getFinal(mystic.magicProjection?.imbalance?.defensive)
@@ -102,14 +102,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
             if (projActions.length) this.addActions(projActions, { id: 'spells', type: 'system' })
 
+            // Spells grouped by via, one action per spell
             const spells = this.actor.items.filter(s => s.type === 'spell')
             if (!spells.length) return
 
             const parentGroupData = { id: 'spells', type: 'system' }
-            const GRADE_LABELS = { base: 'B', intermediate: 'I', advanced: 'Av', arcane: 'A' }
-            const GRADES = ['base', 'intermediate', 'advanced', 'arcane']
 
-            // Group by via
             const byVia = new Map()
             for (const spell of spells) {
                 const via = spell.system.via?.value || 'freeAccess'
@@ -119,38 +117,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             for (const [via, viaSpells] of [...byVia.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
                 const viaName = i(`anima.ui.mystic.spell.via.${via}.title`)
-                const viaGroupId = `spells-via-${via}`
-                const viaGroupData = { id: viaGroupId, name: viaName, type: 'system-derived' }
+                const viaGroupData = { id: `spells-via-${via}`, name: viaName, type: 'system-derived' }
                 this.addGroup(viaGroupData, parentGroupData)
 
                 const sorted = viaSpells.sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
-
-                for (const spell of sorted) {
-                    const gradeActions = []
-                    for (const grade of GRADES) {
-                        const zeon = this.#val(spell.system.grades?.[grade]?.zeon)
-                        if (zeon <= 0) continue
-                        gradeActions.push({
-                            id: `${spell.id}-${grade}`,
-                            name: GRADE_LABELS[grade],
-                            encodedValue: `spell|${spell.id}>${grade}`,
-                            info1: { text: `${zeon}z` },
-                            cssClass: 'shrink'
-                        })
-                    }
-                    if (!gradeActions.length) continue
-
+                const actions = sorted.map(spell => {
                     const lvl = spell.system.level?.value ?? 0
-                    const spellGroupId = `spell-${spell.id}`
-                    const spellGroupData = {
-                        id: spellGroupId,
+                    return {
+                        id: spell.id,
                         name: `[${lvl}] ${spell.name}`,
-                        type: 'system-derived',
-                        settings: { showTitle: true }
+                        encodedValue: `spell|${spell.id}`,
+                        img: spell.img
                     }
-                    this.addGroup(spellGroupData, viaGroupData)
-                    this.addActions(gradeActions, spellGroupData)
-                }
+                })
+                if (actions.length) this.addActions(actions, viaGroupData)
             }
         }
 

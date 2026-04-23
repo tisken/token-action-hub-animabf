@@ -92,14 +92,29 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #castSpell (actor, actionId) {
-            const [spellId, grade] = actionId.split('>', 2)
+            const spellId = actionId.split('>')[0]
             const spell = actor.items.get(spellId)
             if (!spell) return
+
+            // Try system's castSpellGrade with shift to open dialog
+            const sheet = actor.sheet
+            if (sheet) {
+                try {
+                    const mod = await import('/systems/animabf/module/actor/utils/buttonCallbacks/castSpellGrade.js')
+                    if (mod?.castSpellGrade) {
+                        const fakeEvent = { currentTarget: { dataset: { spellId, grade: 'base' } }, shiftKey: true, preventDefault: () => {} }
+                        await mod.castSpellGrade(sheet, fakeEvent)
+                        return
+                    }
+                } catch (e) { console.warn('TAH AnimaBF | castSpellGrade fallback', e) }
+            }
+
+            // Fallback: simple projection roll
             const mp = actor.system.mystic?.magicProjection?.imbalance?.offensive?.base?.value ?? 0
             const die = mp >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${mp}`, actor.getRollData())
             await roll.evaluate()
-            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${spell.name} (${game.i18n.localize(`tokenActionHud.animabf.grade.${grade}`)})` })
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: spell.name })
         }
 
         async #rollMagicProjection (actor, side) {
@@ -118,6 +133,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #castPsychicPower (actor, powerId) {
             const power = actor.items.get(powerId)
             if (!power) return
+
+            // Try system's castPsychicPower
+            const sheet = actor.sheet
+            if (sheet) {
+                try {
+                    const mod = await import('/systems/animabf/module/actor/utils/buttonCallbacks/castPsychicPower.js')
+                    if (mod?.castPsychicPower) {
+                        const fakeEvent = { currentTarget: { dataset: { powerId } }, shiftKey: false, preventDefault: () => {} }
+                        await mod.castPsychicPower(sheet, fakeEvent)
+                        return
+                    }
+                } catch (e) { console.warn('TAH AnimaBF | castPsychicPower fallback', e) }
+            }
+
+            // Fallback
             const pp = actor.system.psychic?.psychicPotential?.final?.value ?? 0
             const roll = new Roll(`1d100 + ${pp}`, actor.getRollData())
             await roll.evaluate()
