@@ -199,9 +199,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             for (const [groupKey, abilities] of Object.entries(SECONDARY_ABILITIES)) {
                 const groupData = this.actor.system.secondaries?.[groupKey]
                 if (!groupData) continue
-                const actions = abilities.filter(a => groupData[a]).map(a => ({
-                    id: `secondary-${a}`, name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.secondary.${a}`)} (${this.#getFinal(groupData[a])})`, encodedValue: `secondary|${a}`
-                }))
+                const actions = abilities
+                    .filter(a => groupData[a] && this.#getFinal(groupData[a]) > 0)
+                    .map(a => ({
+                        id: `secondary-${a}`,
+                        name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.secondary.${a}`)} (${this.#getFinal(groupData[a])})`,
+                        encodedValue: `secondary|${a}`
+                    }))
                 if (actions.length) this.addActions(actions, { id: groupKey, type: 'system' })
             }
         }

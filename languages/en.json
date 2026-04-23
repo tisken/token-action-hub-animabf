@@ -106,11 +106,11 @@
     "tokenActionHud.animabf.characteristic.power": "Power",
     "tokenActionHud.animabf.characteristic.willPower": "Willpower",
 
-    "tokenActionHud.animabf.resistance.physical": "PhR",
-    "tokenActionHud.animabf.resistance.disease": "DR",
-    "tokenActionHud.animabf.resistance.poison": "VR",
-    "tokenActionHud.animabf.resistance.magic": "MR",
-    "tokenActionHud.animabf.resistance.psychic": "PsR",
+    "tokenActionHud.animabf.resistance.physical": "RF",
+    "tokenActionHud.animabf.resistance.disease": "RE",
+    "tokenActionHud.animabf.resistance.poison": "RV",
+    "tokenActionHud.animabf.resistance.magic": "RM",
+    "tokenActionHud.animabf.resistance.psychic": "RP",
 
     "tokenActionHud.animabf.grade.base": "Base",
     "tokenActionHud.animabf.grade.intermediate": "Intermediate",

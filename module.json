@@ -13,7 +13,7 @@
   "readme": "https://github.com/tisken/token-action-hub-animabf#readme",
   "bugs": "https://github.com/tisken/token-action-hub-animabf/issues",
   "flags": {},
-  "version": "1.2.0",
+  "version": "1.2.1",
   "compatibility": {
     "minimum": "13",
     "verified": "14.360"
@@ -21,7 +21,9 @@
   "esmodules": [
     "./scripts/token-action-hud-animabf.min.js"
   ],
-  "styles": [],
+  "styles": [
+    "./styles/tah-animabf.css"
+  ],
   "languages": [
     {
       "lang": "en",
