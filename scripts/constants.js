@@ -40,5 +40,4 @@ export const SECONDARY_ABILITIES = {
 }
 
 export const RESISTANCES = ['physical', 'disease', 'poison', 'magic', 'psychic']
-
 export const CHARACTERISTICS = ['agility', 'constitution', 'dexterity', 'strength', 'intelligence', 'perception', 'power', 'willPower']

@@ -1,11 +1,17 @@
 import { MODULE } from './constants.js'
 
-export function getSetting (key, defaultValue = null) {
-    let value = defaultValue ?? null
-    try {
-        value = game.settings.get(MODULE.ID, key)
-    } catch {
-        // Setting not found
+export let Utils = null
+
+Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
+    Utils = class Utils {
+        static getSetting (key, defaultValue = null) {
+            let value = defaultValue ?? null
+            try {
+                value = game.settings.get(MODULE.ID, key)
+            } catch {
+                coreModule.api.Logger.debug(`Setting '${key}' not found`)
+            }
+            return value
+        }
     }
-    return value
-}
+})
