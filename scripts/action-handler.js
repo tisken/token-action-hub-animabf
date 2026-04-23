@@ -91,30 +91,40 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #buildSpells () {
             if (!this.#hasMystic()) return
             const mystic = this.actor.system.mystic
-            const actions = []
 
+            // Projection group
+            const projActions = []
             const mpOff = this.#getFinal(mystic.magicProjection?.imbalance?.offensive)
             const mpDef = this.#getFinal(mystic.magicProjection?.imbalance?.defensive)
             if (mpOff > 0 || mpDef > 0) {
-                actions.push({ id: 'magic-projection-off', name: `PM Ofn. (${mpOff})`, encodedValue: 'magicProjection|offensive' })
-                actions.push({ id: 'magic-projection-def', name: `PM Def. (${mpDef})`, encodedValue: 'magicProjection|defensive' })
+                projActions.push({ id: 'magic-projection-off', name: `PM Ofn. (${mpOff})`, encodedValue: 'magicProjection|offensive' })
+                projActions.push({ id: 'magic-projection-def', name: `PM Def. (${mpDef})`, encodedValue: 'magicProjection|defensive' })
             }
+            if (projActions.length) this.addActions(projActions, { id: 'spells', type: 'system' })
 
+            // Spell book group — sorted by level
             const spells = this.actor.items.filter(s => s.type === 'spell')
+            if (!spells.length) return
+            const sorted = [...spells].sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
             const showGrades = Utils.getSetting('showSpellGrades', true)
-            if (spells.length && showGrades) {
-                const GRADE_LABELS = { base: 'Base', intermediate: 'Int.', advanced: 'Avz.', arcane: 'Arc.' }
-                for (const spell of spells) {
+            const GRADE_LABELS = { base: 'Base', intermediate: 'Int.', advanced: 'Avz.', arcane: 'Arc.' }
+            const bookActions = []
+            if (showGrades) {
+                for (const spell of sorted) {
                     for (const grade of ['base', 'intermediate', 'advanced', 'arcane']) {
                         const zeon = this.#val(spell.system.grades?.[grade]?.zeon)
                         if (zeon <= 0) continue
-                        actions.push({ id: `${spell.id}-${grade}`, name: `${spell.name} (${GRADE_LABELS[grade]})`, encodedValue: `spell|${spell.id}>${grade}`, img: spell.img, info1: { text: `${zeon}z` } })
+                        const lvl = spell.system.level?.value ?? 0
+                        bookActions.push({ id: `${spell.id}-${grade}`, name: `[${lvl}] ${spell.name} (${GRADE_LABELS[grade]})`, encodedValue: `spell|${spell.id}>${grade}`, img: spell.img, info1: { text: `${zeon}z` } })
                     }
                 }
-            } else if (spells.length) {
-                for (const s of spells) actions.push({ id: s.id, name: s.name, encodedValue: `spell|${s.id}>base`, img: s.img })
+            } else {
+                for (const s of sorted) {
+                    const lvl = s.system.level?.value ?? 0
+                    bookActions.push({ id: s.id, name: `[${lvl}] ${s.name}`, encodedValue: `spell|${s.id}>base`, img: s.img })
+                }
             }
-            if (actions.length) this.addActions(actions, { id: 'spells', type: 'system' })
+            if (bookActions.length) this.addActions(bookActions, { id: 'spell-book', type: 'system' })
         }
 
         #buildSummoning () {
@@ -131,18 +141,23 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #buildPsychicPowers () {
             if (!this.#hasPsychic()) return
             const psychic = this.actor.system.psychic
-            const actions = []
 
+            // Projection group
+            const projActions = []
             const ppOff = this.#getFinal(psychic.psychicProjection?.imbalance?.offensive)
             const ppDef = this.#getFinal(psychic.psychicProjection?.imbalance?.defensive)
             if (ppOff > 0 || ppDef > 0) {
-                actions.push({ id: 'psychic-projection-off', name: `PP Ofn. (${ppOff})`, encodedValue: 'psychicProjection|offensive' })
-                actions.push({ id: 'psychic-projection-def', name: `PP Def. (${ppDef})`, encodedValue: 'psychicProjection|defensive' })
+                projActions.push({ id: 'psychic-projection-off', name: `PP Ofn. (${ppOff})`, encodedValue: 'psychicProjection|offensive' })
+                projActions.push({ id: 'psychic-projection-def', name: `PP Def. (${ppDef})`, encodedValue: 'psychicProjection|defensive' })
             }
+            if (projActions.length) this.addActions(projActions, { id: 'psychic-powers', type: 'system' })
 
+            // Mental powers group — sorted by level
             const powers = this.actor.items.filter(p => p.type === 'psychicPower')
-            for (const p of powers) actions.push({ id: p.id, name: p.name, encodedValue: `psychicPower|${p.id}`, img: p.img })
-            if (actions.length) this.addActions(actions, { id: 'psychic-powers', type: 'system' })
+            if (!powers.length) return
+            const sorted = [...powers].sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
+            const mentalActions = sorted.map(p => ({ id: p.id, name: p.name, encodedValue: `psychicPower|${p.id}`, img: p.img }))
+            if (mentalActions.length) this.addActions(mentalActions, { id: 'mental-powers', type: 'system' })
         }
 
         #buildKiSkills () {

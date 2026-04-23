@@ -14,7 +14,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             {
                 nestId: 'combat',
                 id: 'combat',
-                name: coreModule.api.Utils.i18n('tokenActionHud.animabf.combatTab'),
+                name: 'Combate',
                 groups: [
                     { ...groups.combatSkills, nestId: 'combat_combat-skills' },
                     { ...groups.weapons, nestId: 'combat_weapons' },
@@ -24,24 +24,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             {
                 nestId: 'mystic',
                 id: 'mystic',
-                name: coreModule.api.Utils.i18n('tokenActionHud.animabf.mysticTab'),
+                name: 'Místico',
                 groups: [
                     { ...groups.spells, nestId: 'mystic_spells' },
+                    { ...groups.spellBook, nestId: 'mystic_spell-book' },
                     { ...groups.summoning, nestId: 'mystic_summoning' }
                 ]
             },
             {
                 nestId: 'psychic',
                 id: 'psychic',
-                name: coreModule.api.Utils.i18n('tokenActionHud.animabf.psychicTab'),
+                name: 'Psíquico',
                 groups: [
-                    { ...groups.psychicPowers, nestId: 'psychic_psychic-powers' }
+                    { ...groups.psychicPowers, nestId: 'psychic_psychic-powers' },
+                    { ...groups.mentalPowers, nestId: 'psychic_mental-powers' }
                 ]
             },
             {
                 nestId: 'domine',
                 id: 'domine',
-                name: coreModule.api.Utils.i18n('tokenActionHud.animabf.domineTab'),
+                name: 'Dominio',
                 groups: [
                     { ...groups.kiSkills, nestId: 'domine_ki-skills' },
                     { ...groups.techniques, nestId: 'domine_techniques' },
@@ -51,7 +53,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             {
                 nestId: 'secondaries',
                 id: 'secondaries',
-                name: coreModule.api.Utils.i18n('tokenActionHud.animabf.secondariesTab'),
+                name: 'Secundarias',
                 groups: [
                     { ...groups.athletics, nestId: 'secondaries_athletics' },
                     { ...groups.vigor, nestId: 'secondaries_vigor' },
@@ -65,7 +67,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             {
                 nestId: 'attributes',
                 id: 'attributes',
-                name: coreModule.api.Utils.i18n('tokenActionHud.animabf.attributesTab'),
+                name: 'Atributos',
                 groups: [
                     { ...groups.characteristics, nestId: 'attributes_characteristics' },
                     { ...groups.resistances, nestId: 'attributes_resistances' },
