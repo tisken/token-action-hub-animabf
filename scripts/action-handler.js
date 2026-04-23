@@ -137,10 +137,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (!this.#hasMystic()) return
             const summoning = this.actor.system.mystic?.summoning
             if (!summoning) return
-            const actions = ['summon', 'banish', 'bind', 'control'].map(key => ({
-                id: `summoning-${key}`, name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.${key}`)} (${this.#getFinal(summoning[key])})`, encodedValue: `summoning|${key}`
-            }))
-            this.addActions(actions, { id: 'summoning', type: 'system' })
+            const actions = ['summon', 'banish', 'bind', 'control']
+                .filter(key => this.#getFinal(summoning[key]) > 0)
+                .map(key => ({
+                    id: `summoning-${key}`,
+                    name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.${key}`)} (${this.#getFinal(summoning[key])})`,
+                    encodedValue: `summoning|${key}`
+                }))
+            if (actions.length) this.addActions(actions, { id: 'summoning', type: 'system' })
         }
 
         #buildPsychicPowers () {
