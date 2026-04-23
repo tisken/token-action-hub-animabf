@@ -51,25 +51,38 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const weapon = actor.items.get(weaponId)
             if (!weapon) return
 
-            // Always try the system's attack dialog first
+            // Use the system's sheet click handler to open AttackConfigurationDialog
             const sheet = actor.sheet
-            const token = sheet?.token ?? actor.getActiveTokens?.()?.[0]
-            if (token) {
+            if (sheet) {
+                const fakeEvent = {
+                    currentTarget: { dataset: { weaponId, onClick: 'createWeaponAttack' } },
+                    preventDefault: () => {},
+                    shiftKey: false
+                }
                 try {
-                    const targets = game.user.targets
-                    const snapshotTargets = targets?.size > 0
-                        ? [...targets].map(t => ({ tokenId: t.id ?? t.document?.id, actorId: t.actor?.id })).filter(t => t.tokenId && t.actorId)
-                        : []
+                    // Try to get the click handler registry from the sheet
+                    if (typeof sheet._activateDataOnClickHandlers === 'function' || sheet.constructor) {
+                        // Import createClickHandlers dynamically from the system
+                        const mod = await import('../../../systems/animabf/module/actor/utils/buttonCallbacks/createWeaponAttack.js')
+                        if (mod?.createWeaponAttack) {
+                            mod.createWeaponAttack(sheet, fakeEvent)
+                            return
+                        }
+                    }
+                } catch (e) {
+                    // Dynamic import failed, try alternative
+                }
 
-                    const DialogClass = game.animabf?.dialogs?.AttackConfigurationDialog ?? globalThis.AttackConfigurationDialog
-                    if (DialogClass) {
-                        new DialogClass(
-                            { attacker: token, weaponId, targets: snapshotTargets },
-                            { allowed: true }
-                        )
+                // Alternative: try to find the handler in the sheet's bound handlers
+                try {
+                    const handlerMod = await import('../../../systems/animabf/module/actor/utils/createClickHandlers.js')
+                    if (handlerMod?.clickHandlerRegistry?.createWeaponAttack) {
+                        handlerMod.clickHandlerRegistry.createWeaponAttack(fakeEvent)
                         return
                     }
-                } catch (e) { console.warn('TAH AnimaBF | AttackConfigurationDialog fallback', e) }
+                } catch (e) {
+                    // Also failed
+                }
             }
 
             // Fallback: simple roll
@@ -139,9 +152,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         async #rollResistance (actor, key) {
             const val = actor.system.characteristics?.secondaries?.resistances?.[key]?.final?.value ?? 0
+            const label = game.i18n.localize(`tokenActionHud.animabf.resistance.${key}`)
             const roll = new Roll(`1d100 + ${val}`, actor.getRollData())
             await roll.evaluate()
-            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(`tokenActionHud.animabf.resistance.${key}`) })
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${label} (${val})` })
         }
 
         async #rollCharacteristic (actor, key) {

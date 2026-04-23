@@ -10,11 +10,13 @@ export default [
         output: {
             format: 'esm',
             file: 'scripts/token-action-hud-animabf.min.js',
-            sourcemap: true
+            sourcemap: true,
+            inlineDynamicImports: true
         },
         plugins: [
             terser({ keep_classnames: true, keep_fnames: true }),
             multi()
-        ]
+        ],
+        external: (id) => id.includes('systems/animabf')
     }
 ]
