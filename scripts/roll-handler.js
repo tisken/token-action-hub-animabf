@@ -51,37 +51,34 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const weapon = actor.items.get(weaponId)
             if (!weapon) return
 
-            // Use the system's sheet click handler to open AttackConfigurationDialog
+            // Try to call createWeaponAttack via the system's click handler registry
             const sheet = actor.sheet
             if (sheet) {
                 const fakeEvent = {
-                    currentTarget: { dataset: { weaponId, onClick: 'createWeaponAttack' } },
+                    currentTarget: { dataset: { weaponId } },
                     preventDefault: () => {},
                     shiftKey: false
                 }
                 try {
-                    // Try to get the click handler registry from the sheet
-                    if (typeof sheet._activateDataOnClickHandlers === 'function' || sheet.constructor) {
-                        // Import createClickHandlers dynamically from the system
-                        const mod = await import('../../../systems/animabf/module/actor/utils/buttonCallbacks/createWeaponAttack.js')
-                        if (mod?.createWeaponAttack) {
-                            mod.createWeaponAttack(sheet, fakeEvent)
-                            return
-                        }
-                    }
-                } catch (e) {
-                    // Dynamic import failed, try alternative
-                }
-
-                // Alternative: try to find the handler in the sheet's bound handlers
-                try {
-                    const handlerMod = await import('../../../systems/animabf/module/actor/utils/createClickHandlers.js')
-                    if (handlerMod?.clickHandlerRegistry?.createWeaponAttack) {
-                        handlerMod.clickHandlerRegistry.createWeaponAttack(fakeEvent)
+                    // Use absolute URL to import from the system
+                    const mod = await import('/systems/animabf/module/actor/utils/buttonCallbacks/createWeaponAttack.js')
+                    if (mod?.createWeaponAttack) {
+                        mod.createWeaponAttack(sheet, fakeEvent)
                         return
                     }
                 } catch (e) {
-                    // Also failed
+                    console.warn('TAH AnimaBF | Direct import failed, trying registry', e)
+                }
+
+                // Alternative: try the click handler registry
+                try {
+                    const regMod = await import('/systems/animabf/module/actor/utils/createClickHandlers.js')
+                    if (regMod?.clickHandlerRegistry?.createWeaponAttack) {
+                        regMod.clickHandlerRegistry.createWeaponAttack(fakeEvent)
+                        return
+                    }
+                } catch (e) {
+                    console.warn('TAH AnimaBF | Registry import failed', e)
                 }
             }
 

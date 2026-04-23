@@ -63,11 +63,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #buildCombatSkills () {
             const combat = this.actor.system.combat
             if (!combat) return
-            const actions = [
-                { id: 'combat-attack', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.attack')} (${this.#getFinal(combat.attack)})`, encodedValue: 'combat|attack' },
-                { id: 'combat-block', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.block')} (${this.#getFinal(combat.block)})`, encodedValue: 'combat|block' },
-                { id: 'combat-dodge', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.dodge')} (${this.#getFinal(combat.dodge)})`, encodedValue: 'combat|dodge' }
-            ]
+
+            const atkVal = this.#getFinal(combat.attack)
+            const blkVal = this.#getFinal(combat.block)
+            const dodVal = this.#getFinal(combat.dodge)
+
+            const actions = []
+            if (atkVal > 0) actions.push({ id: 'combat-attack', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.attack')} (${atkVal})`, encodedValue: 'combat|attack' })
+            if (blkVal > 0) actions.push({ id: 'combat-block', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.block')} (${blkVal})`, encodedValue: 'combat|block' })
+
+            // Always show dodge: if none are developed, show dodge as fallback
+            if (dodVal > 0 || actions.length === 0) {
+                actions.push({ id: 'combat-dodge', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.dodge')} (${dodVal})`, encodedValue: 'combat|dodge' })
+            }
+
             this.addActions(actions, { id: 'combat-skills', type: 'system' })
         }
 

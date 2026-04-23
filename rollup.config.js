@@ -17,6 +17,6 @@ export default [
             terser({ keep_classnames: true, keep_fnames: true }),
             multi()
         ],
-        external: (id) => id.includes('systems/animabf')
+        external: (id) => id.startsWith('/systems/')
     }
 ]
