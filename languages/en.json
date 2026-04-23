@@ -16,12 +16,16 @@
 
     "tokenActionHud.animabf.spells": "Spells",
     "tokenActionHud.animabf.summoning": "Summoning",
+    "tokenActionHud.animabf.magicProjectionOff": "MP Off.",
+    "tokenActionHud.animabf.magicProjectionDef": "MP Def.",
     "tokenActionHud.animabf.summon": "Summon",
     "tokenActionHud.animabf.banish": "Banish",
     "tokenActionHud.animabf.bind": "Bind",
     "tokenActionHud.animabf.control": "Control",
 
     "tokenActionHud.animabf.psychicPowers": "Psychic Powers",
+    "tokenActionHud.animabf.psychicProjectionOff": "PP Off.",
+    "tokenActionHud.animabf.psychicProjectionDef": "PP Def.",
 
     "tokenActionHud.animabf.kiSkills": "Ki Skills",
     "tokenActionHud.animabf.techniques": "Techniques",

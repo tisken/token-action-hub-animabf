@@ -44,6 +44,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             return this.#val(node)
         }
 
+        #hasMystic () {
+            const m = this.actor.system.mystic
+            if (!m) return false
+            const zeonMax = m.zeon?.max ?? 0
+            const mpBase = this.#getFinal(m.magicProjection)
+            return zeonMax > 0 || mpBase > 0
+        }
+
+        #hasPsychic () {
+            const p = this.actor.system.psychic
+            if (!p) return false
+            const ppBase = this.#getFinal(p.psychicPotential)
+            const projBase = this.#getFinal(p.psychicProjection)
+            return ppBase > 0 || projBase > 0
+        }
+
         #buildCombatSkills () {
             const combat = this.actor.system.combat
             if (!combat) return
@@ -74,12 +90,32 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         #buildSpells () {
+            if (!this.#hasMystic()) return
+
+            const mystic = this.actor.system.mystic
+            const actions = []
+
+            // Magic Projection
+            const mpOff = this.#getFinal(mystic.magicProjection?.imbalance?.offensive)
+            const mpDef = this.#getFinal(mystic.magicProjection?.imbalance?.defensive)
+            if (mpOff > 0 || mpDef > 0) {
+                actions.push({
+                    id: 'magic-projection-off',
+                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.magicProjectionOff')} (${mpOff})`,
+                    encodedValue: 'magicProjection|offensive'
+                })
+                actions.push({
+                    id: 'magic-projection-def',
+                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.magicProjectionDef')} (${mpDef})`,
+                    encodedValue: 'magicProjection|defensive'
+                })
+            }
+
+            // Spells by grade
             const spells = this.actor.items.filter(i => i.type === 'spell')
-            if (!spells.length) return
             const showGrades = Utils.getSetting('showSpellGrades', true)
-            if (showGrades) {
+            if (spells.length && showGrades) {
                 const grades = ['base', 'intermediate', 'advanced', 'arcane']
-                const actions = []
                 for (const spell of spells) {
                     for (const grade of grades) {
                         const zeon = this.#val(spell.system.grades?.[grade]?.zeon)
@@ -88,14 +124,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         actions.push({ id: `${spell.id}-${grade}`, name: `${spell.name} (${gradeName})`, encodedValue: `spell|${spell.id}>${grade}`, img: spell.img, info1: { text: `${zeon}z` } })
                     }
                 }
-                if (actions.length) this.addActions(actions, { id: 'spells', type: 'system' })
-            } else {
-                const actions = spells.map(s => ({ id: s.id, name: s.name, encodedValue: `spell|${s.id}>base`, img: s.img }))
-                this.addActions(actions, { id: 'spells', type: 'system' })
+            } else if (spells.length) {
+                for (const s of spells) {
+                    actions.push({ id: s.id, name: s.name, encodedValue: `spell|${s.id}>base`, img: s.img })
+                }
             }
+
+            if (actions.length) this.addActions(actions, { id: 'spells', type: 'system' })
         }
 
         #buildSummoning () {
+            if (!this.#hasMystic()) return
             const summoning = this.actor.system.mystic?.summoning
             if (!summoning) return
             const actions = ['summon', 'banish', 'bind', 'control'].map(key => ({
@@ -105,10 +144,34 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         #buildPsychicPowers () {
+            if (!this.#hasPsychic()) return
+
+            const psychic = this.actor.system.psychic
+            const actions = []
+
+            // Psychic Projection
+            const ppOff = this.#getFinal(psychic.psychicProjection?.imbalance?.offensive)
+            const ppDef = this.#getFinal(psychic.psychicProjection?.imbalance?.defensive)
+            if (ppOff > 0 || ppDef > 0) {
+                actions.push({
+                    id: 'psychic-projection-off',
+                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.psychicProjectionOff')} (${ppOff})`,
+                    encodedValue: 'psychicProjection|offensive'
+                })
+                actions.push({
+                    id: 'psychic-projection-def',
+                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.psychicProjectionDef')} (${ppDef})`,
+                    encodedValue: 'psychicProjection|defensive'
+                })
+            }
+
+            // Powers
             const powers = this.actor.items.filter(i => i.type === 'psychicPower')
-            if (!powers.length) return
-            const actions = powers.map(p => ({ id: p.id, name: p.name, encodedValue: `psychicPower|${p.id}`, img: p.img }))
-            this.addActions(actions, { id: 'psychic-powers', type: 'system' })
+            for (const p of powers) {
+                actions.push({ id: p.id, name: p.name, encodedValue: `psychicPower|${p.id}`, img: p.img })
+            }
+
+            if (actions.length) this.addActions(actions, { id: 'psychic-powers', type: 'system' })
         }
 
         #buildKiSkills () {

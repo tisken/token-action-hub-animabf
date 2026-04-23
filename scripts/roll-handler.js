@@ -27,7 +27,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'weapon': await this.#rollWeaponAttack(actor, actionId); break
             case 'armor': this.renderItem(actor, actionId); break
             case 'spell': await this.#castSpell(actor, actionId); break
+            case 'magicProjection': await this.#rollMagicProjection(actor, actionId); break
             case 'psychicPower': await this.#castPsychicPower(actor, actionId); break
+            case 'psychicProjection': await this.#rollPsychicProjection(actor, actionId); break
             case 'secondary': await this.#rollSecondary(actor, actionId); break
             case 'resistance': await this.#rollResistance(actor, actionId); break
             case 'characteristic': await this.#rollCharacteristic(actor, actionId); break
@@ -49,32 +51,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const weapon = actor.items.get(weaponId)
             if (!weapon) return
 
-            const targets = game.user.targets
-            const hasTargets = targets && targets.size > 0
+            // Always try the system's attack dialog first
+            const sheet = actor.sheet
+            const token = sheet?.token ?? actor.getActiveTokens?.()?.[0]
+            if (token) {
+                try {
+                    const targets = game.user.targets
+                    const snapshotTargets = targets?.size > 0
+                        ? [...targets].map(t => ({ tokenId: t.id ?? t.document?.id, actorId: t.actor?.id })).filter(t => t.tokenId && t.actorId)
+                        : []
 
-            if (hasTargets) {
-                const sheet = actor.sheet
-                const token = sheet?.token ?? actor.getActiveTokens?.()?.[0]
-                if (token) {
-                    try {
-                        const snapshotTargets = [...targets].map(t => ({
-                            tokenId: t.id ?? t.document?.id,
-                            actorId: t.actor?.id
-                        })).filter(t => t.tokenId && t.actorId)
-
-                        const DialogClass = game.animabf?.dialogs?.AttackConfigurationDialog
-                            ?? globalThis.AttackConfigurationDialog
-                        if (DialogClass) {
-                            new DialogClass(
-                                { attacker: token, weaponId, targets: snapshotTargets },
-                                { allowed: true }
-                            )
-                            return
-                        }
-                    } catch (e) { console.warn('TAH AnimaBF | AttackConfigurationDialog fallback', e) }
-                }
+                    const DialogClass = game.animabf?.dialogs?.AttackConfigurationDialog ?? globalThis.AttackConfigurationDialog
+                    if (DialogClass) {
+                        new DialogClass(
+                            { attacker: token, weaponId, targets: snapshotTargets },
+                            { allowed: true }
+                        )
+                        return
+                    }
+                } catch (e) { console.warn('TAH AnimaBF | AttackConfigurationDialog fallback', e) }
             }
 
+            // Fallback: simple roll
             const atk = weapon.system.attack?.final?.value ?? 0
             const die = atk >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${atk}`, actor.getRollData())
@@ -93,6 +91,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${spell.name} (${game.i18n.localize(`tokenActionHud.animabf.grade.${grade}`)})` })
         }
 
+        async #rollMagicProjection (actor, side) {
+            const imbalance = actor.system.mystic?.magicProjection?.imbalance
+            const node = side === 'offensive' ? imbalance?.offensive : imbalance?.defensive
+            const val = node?.base?.value ?? node?.final?.value ?? 0
+            const die = val >= 200 ? '1d100xamastery' : '1d100xa'
+            const roll = new Roll(`${die} + ${val}`, actor.getRollData())
+            await roll.evaluate()
+            const label = side === 'offensive'
+                ? game.i18n.localize('tokenActionHud.animabf.magicProjectionOff')
+                : game.i18n.localize('tokenActionHud.animabf.magicProjectionDef')
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: label })
+        }
+
         async #castPsychicPower (actor, powerId) {
             const power = actor.items.get(powerId)
             if (!power) return
@@ -100,6 +111,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const roll = new Roll(`1d100 + ${pp}`, actor.getRollData())
             await roll.evaluate()
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${power.name} — Potencial` })
+        }
+
+        async #rollPsychicProjection (actor, side) {
+            const imbalance = actor.system.psychic?.psychicProjection?.imbalance
+            const node = side === 'offensive' ? imbalance?.offensive : imbalance?.defensive
+            const val = node?.base?.value ?? node?.final?.value ?? 0
+            const die = val >= 200 ? '1d100xamastery' : '1d100xa'
+            const roll = new Roll(`${die} + ${val}`, actor.getRollData())
+            await roll.evaluate()
+            const label = side === 'offensive'
+                ? game.i18n.localize('tokenActionHud.animabf.psychicProjectionOff')
+                : game.i18n.localize('tokenActionHud.animabf.psychicProjectionDef')
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: label })
         }
 
         async #rollSecondary (actor, abilityKey) {

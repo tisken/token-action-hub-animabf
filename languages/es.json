@@ -16,12 +16,16 @@
 
     "tokenActionHud.animabf.spells": "Conjuros",
     "tokenActionHud.animabf.summoning": "Invocación",
+    "tokenActionHud.animabf.magicProjectionOff": "PM Ofn.",
+    "tokenActionHud.animabf.magicProjectionDef": "PM Def.",
     "tokenActionHud.animabf.summon": "Invocar",
     "tokenActionHud.animabf.banish": "Desterrar",
     "tokenActionHud.animabf.bind": "Atar",
     "tokenActionHud.animabf.control": "Controlar",
 
     "tokenActionHud.animabf.psychicPowers": "Poderes Psíquicos",
+    "tokenActionHud.animabf.psychicProjectionOff": "PP Ofn.",
+    "tokenActionHud.animabf.psychicProjectionDef": "PP Def.",
 
     "tokenActionHud.animabf.kiSkills": "Habilidades de Ki",
     "tokenActionHud.animabf.techniques": "Técnicas",
