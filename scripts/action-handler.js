@@ -7,7 +7,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
         /** @override */
         async buildSystemActions (groupIds) {
-            if (!this.actor) return
+            console.log('TAH AnimaBF | buildSystemActions called')
+            console.log('TAH AnimaBF | actor:', this.actor)
+            console.log('TAH AnimaBF | actor.type:', this.actor?.type)
+            console.log('TAH AnimaBF | actor.system keys:', this.actor?.system ? Object.keys(this.actor.system) : 'no system')
+            if (!this.actor) { console.log('TAH AnimaBF | No actor, returning'); return }
 
             const builders = [
                 () => this.#buildCombatSkills(),
