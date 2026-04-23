@@ -1,129 +1,89 @@
-# Token Action HUD — Anima Beyond Fantasy
+# Token Action HUD — ABF
 
 ![Foundry v14](https://img.shields.io/badge/Foundry-v14-informational)
-![System animabf](https://img.shields.io/badge/System-Anima%20Beyond%20Fantasy-blueviolet)
+![System animabf](https://img.shields.io/badge/System-ABF-blueviolet)
 
-Token Action HUD es un HUD reposicionable de acciones para un token seleccionado, compatible con el sistema **Anima Beyond Fantasy** para Foundry VTT.
+HUD reposicionable de acciones rápidas para tokens del sistema **ABF (Anima Beyond Fantasy)** en Foundry VTT.
 
-> **Este módulo es un complemento de sistema (system module) para [Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core) de Larkinabout.** No funciona de forma independiente.
+> **Requiere [Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core).** No funciona de forma independiente.
 
 ---
 
 ## Características
 
-- Realiza tiradas directamente desde el HUD sin abrir la ficha de personaje.
-- Haz clic derecho en un ítem para abrir su ficha.
-- Mueve el HUD y elige expandir los menús hacia arriba o abajo.
-- Desbloquea el HUD para personalizar los grupos y acciones.
+- Tiradas directas desde el HUD sin abrir la ficha.
+- Clic derecho en un ítem para abrir su ficha.
+- HUD reposicionable con menús expandibles.
+- Personalización de grupos y acciones.
 
-### Pestañas del HUD
+### Pestañas
 
 | Pestaña | Contenido |
 |---|---|
-| **Combate** | Ataque / Parada / Esquiva, Armas (con ataque/daño), Armaduras |
-| **Místico** | Conjuros con grados (Base, Intermedio, Avanzado, Arcano) + coste de Zeon, Invocación (Invocar/Desterrar/Atar/Controlar) |
-| **Psíquico** | Poderes Psíquicos |
+| **Combate** | Ataque/Parada/Esquiva (solo desarrolladas), Armas (con diálogo de ataque nativo), Armaduras |
+| **Místico** | PM Ofn./Def., Conjuros agrupados por Vía con grados (B/I/Av/A) + coste Zeon, Invocación |
+| **Psíquico** | PP Ofn./Def., Poderes Psíquicos ordenados por nivel |
 | **Dominio** | Habilidades de Ki, Técnicas, Artes Marciales |
-| **Secundarias** | Atléticas, Vigor, Percepción, Intelectuales, Sociales, Subterfugio, Creativas |
-| **Atributos** | Características primarias, Resistencias (Física/Enfermedad/Veneno/Mágica/Psíquica), Iniciativa |
-| **Utilidad** | Fin de turno, Visibilidad del token, Combate |
-
-### Configuración del módulo
-
-- **Mostrar Detalles de Armas** — Muestra valores de ataque/daño junto al nombre del arma.
-- **Mostrar Grados de Conjuros** — Muestra cada grado de conjuro como una acción separada con su coste de Zeon.
+| **Secundarias** | Solo las desarrolladas: Atléticas, Vigor, Percepción, Intelectuales, Sociales, Subterfugio, Creativas |
+| **Atributos** | Características, Resistencias (RF/RE/RV/RM/RP), Iniciativa |
+| **Utilidad** | Fin de turno, Visibilidad, Combate |
 
 ---
 
 ## Instalación
 
-### Módulos requeridos
+### Requisitos
 
-1. **[Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core)** — El módulo base del HUD.
-2. **[Anima Beyond Fantasy System](https://github.com/AnimaBeyondDevelop/AnimaBeyondFoundry)** — El sistema de juego.
+1. **[Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core)**
+2. **[Sistema ABF](https://github.com/AnimaBeyondDevelop/AnimaBeyondFoundry)**
 
-### Instalación manual
+### Manifest URL
 
-1. Descarga la última release de este repositorio.
-2. Extrae el contenido en `Data/modules/token-action-hud-animabf/`.
-3. En Foundry VTT, ve a **Configuración > Módulos** y activa tanto **Token Action HUD Core** como **Token Action HUD Anima Beyond Fantasy**.
+```
+https://github.com/tisken/token-action-hub-animabf/releases/latest/download/module.json
+```
 
-### Instalación por Manifest URL
+### Manual
 
-1. En Foundry VTT, ve a **Configuración > Módulos > Instalar Módulo**.
-2. Pega la URL del manifest: `https://github.com/tisken/token-action-hub-animabf/releases/latest/download/module.json`
-3. Haz clic en **Instalar**.
+1. Descarga la última release.
+2. Extrae en `Data/modules/token-action-hud-animabf/`.
+3. Activa ambos módulos en Foundry.
 
 ---
 
 ## Desarrollo
 
-### Requisitos
-
-- Node.js 18+
-- npm
-
-### Build
-
 ```bash
 npm install
-npm run build
+npm run build   # producción
+npm run dev     # watch
 ```
 
-### Desarrollo con watch
-
-```bash
-npm run dev
-```
-
-### Estructura del proyecto
+### Estructura
 
 ```
-token-action-hud-animabf/
-├── languages/          # Traducciones (EN, ES)
-├── scripts/
-│   ├── action-handler.js   # Construye las acciones del HUD desde el actor
-│   ├── constants.js        # Grupos, tipos de acción, habilidades
-│   ├── defaults.js         # Layout por defecto del HUD
-│   ├── init.js             # Punto de entrada del módulo
-│   ├── roll-handler.js     # Ejecuta acciones al hacer clic
-│   ├── settings.js         # Configuración del módulo
-│   ├── system-manager.js   # Conecta con la API del core
-│   └── utils.js            # Utilidades
-├── module.json             # Manifiesto de Foundry VTT
-├── package.json
-└── rollup.config.js
+scripts/
+├── action-handler.js   # Construye acciones desde el actor ABF
+├── constants.js        # Grupos y constantes
+├── defaults.js         # Layout por defecto
+├── init.js             # Punto de entrada
+├── roll-handler.js     # Ejecuta acciones (rolls, diálogos)
+├── settings.js         # Configuración del módulo
+├── system-manager.js   # Conecta con la API del core
+└── utils.js            # Utilidades
 ```
 
 ---
 
-## Integración con el sistema
+## Reconocimientos
 
-El módulo intenta usar los callbacks nativos del sistema Anima Beyond Fantasy para:
-
-- **Ataques con arma** — Usa `createWeaponAttack` para abrir el diálogo de ataque del sistema.
-- **Lanzar conjuros** — Usa `castSpellGrade` para lanzar conjuros con el flujo nativo (gestión de Zeon, proyección mágica, etc.).
-- **Poderes psíquicos** — Usa `castPsychicPower` para tirar potencial psíquico y resolver efectos.
-
-Si los callbacks nativos no están disponibles (por cambios en el sistema), se usa un **fallback** con tiradas genéricas.
-
----
-
-## Reconocimientos y Atribución
-
-Este módulo está basado en la arquitectura y patrones de los siguientes proyectos:
-
-- **[Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core)** por [Larkinabout](https://github.com/Larkinabout) — El framework base que hace posible este HUD. Licenciado bajo [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/).
-- **[Anima Beyond Fantasy System](https://github.com/AnimaBeyondDevelop/AnimaBeyondFoundry)** por [AnimaBeyondDevelop](https://github.com/AnimaBeyondDevelop) — El sistema de Foundry VTT para Anima Beyond Fantasy del cual se lee el data model de los actores.
-
-Gracias a la comunidad de Foundry VTT y a los Community Helpers del Discord por su apoyo continuo.
+- **[Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core)** por [Larkinabout](https://github.com/Larkinabout) — Framework base. [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/).
+- **[Sistema ABF](https://github.com/AnimaBeyondDevelop/AnimaBeyondFoundry)** por [AnimaBeyondDevelop](https://github.com/AnimaBeyondDevelop) — Data model de actores.
 
 ---
 
 ## Licencia
 
-Este módulo para Foundry VTT está licenciado bajo [Creative Commons Attribution 4.0 International License (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0/).
+[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) + [Foundry VTT EULA](https://foundryvtt.com/article/license/).
 
-Este trabajo también está licenciado bajo la [Foundry Virtual Tabletop EULA — Limited License Agreement for module development](https://foundryvtt.com/article/license/).
-
-**Anima Beyond Fantasy** es una marca registrada de Anima Project Studio. Este módulo no está afiliado ni respaldado por Anima Project Studio.
+**Anima Beyond Fantasy** es marca registrada de Anima Project Studio. No afiliado.

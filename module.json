@@ -1,7 +1,7 @@
 {
   "id": "token-action-hud-animabf",
-  "title": "Token Action HUD Anima Beyond Fantasy",
-  "description": "Token Action HUD is a repositionable HUD of actions for a selected token, compatible with the Anima Beyond Fantasy system.",
+  "title": "Token Action HUD ABF",
+  "description": "Token Action HUD for the Anima Beyond Fantasy system in Foundry VTT.",
   "authors": [
     {
       "name": "Dragug"
@@ -13,7 +13,7 @@
   "readme": "https://github.com/tisken/token-action-hub-animabf#readme",
   "bugs": "https://github.com/tisken/token-action-hub-animabf/issues",
   "flags": {},
-  "version": "1.4.0",
+  "version": "1.4.1",
   "compatibility": {
     "minimum": "13",
     "verified": "14.360"
