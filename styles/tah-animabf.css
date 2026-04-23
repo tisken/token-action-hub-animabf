@@ -1,3 +1,8 @@
 .tah-tab-group .tah-subgroup {
-    min-width: 220px;
+    min-width: 300px;
+}
+
+.tah-tab-group > .tah-subgroups-container > .tah-subgroups {
+    min-width: 350px;
+    max-width: min(90vw, 600px);
 }
