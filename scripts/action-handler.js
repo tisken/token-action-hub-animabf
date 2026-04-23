@@ -4,11 +4,12 @@ import { Utils } from './utils.js'
 export let ActionHandler = null
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
+    const i = (key) => game.i18n.localize(key)
+
     ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
         /** @override */
         async buildSystemActions (groupIds) {
             if (!this.actor) return
-
             const builders = [
                 () => this.#buildCombatSkills(),
                 () => this.#buildWeapons(),
@@ -47,41 +48,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #hasMystic () {
             const m = this.actor.system.mystic
             if (!m) return false
-            const zeonMax = m.zeon?.max ?? 0
-            const mpBase = this.#getFinal(m.magicProjection)
-            return zeonMax > 0 || mpBase > 0
+            return (m.zeon?.max ?? 0) > 0 || this.#getFinal(m.magicProjection) > 0
         }
 
         #hasPsychic () {
             const p = this.actor.system.psychic
             if (!p) return false
-            const ppBase = this.#getFinal(p.psychicPotential)
-            const projBase = this.#getFinal(p.psychicProjection)
-            return ppBase > 0 || projBase > 0
+            return this.#getFinal(p.psychicPotential) > 0 || this.#getFinal(p.psychicProjection) > 0
         }
 
         #buildCombatSkills () {
             const combat = this.actor.system.combat
             if (!combat) return
-
             const atkVal = this.#getFinal(combat.attack)
             const blkVal = this.#getFinal(combat.block)
             const dodVal = this.#getFinal(combat.dodge)
-
             const actions = []
-            if (atkVal > 0) actions.push({ id: 'combat-attack', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.attack')} (${atkVal})`, encodedValue: 'combat|attack' })
-            if (blkVal > 0) actions.push({ id: 'combat-block', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.block')} (${blkVal})`, encodedValue: 'combat|block' })
-
-            // Always show dodge: if none are developed, show dodge as fallback
-            if (dodVal > 0 || actions.length === 0) {
-                actions.push({ id: 'combat-dodge', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.dodge')} (${dodVal})`, encodedValue: 'combat|dodge' })
-            }
-
+            if (atkVal > 0) actions.push({ id: 'combat-attack', name: `${i('anima.ui.combat.baseValues.attack.title')} (${atkVal})`, encodedValue: 'combat|attack' })
+            if (blkVal > 0) actions.push({ id: 'combat-block', name: `${i('anima.ui.combat.baseValues.block.title')} (${blkVal})`, encodedValue: 'combat|block' })
+            if (dodVal > 0 || actions.length === 0) actions.push({ id: 'combat-dodge', name: `${i('anima.ui.combat.baseValues.dodge.title')} (${dodVal})`, encodedValue: 'combat|dodge' })
             this.addActions(actions, { id: 'combat-skills', type: 'system' })
         }
 
         #buildWeapons () {
-            const weapons = this.actor.items.filter(i => i.type === 'weapon')
+            const weapons = this.actor.items.filter(w => w.type === 'weapon')
             if (!weapons.length) return
             const showDetails = Utils.getSetting('showWeaponDetails', true)
             const actions = weapons.map(w => {
@@ -92,7 +82,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         #buildArmors () {
-            const armors = this.actor.items.filter(i => i.type === 'armor')
+            const armors = this.actor.items.filter(a => a.type === 'armor')
             if (!armors.length) return
             const actions = armors.map(a => ({ id: a.id, name: a.name, encodedValue: `armor|${a.id}`, img: a.img }))
             this.addActions(actions, { id: 'armors', type: 'system' })
@@ -100,45 +90,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         #buildSpells () {
             if (!this.#hasMystic()) return
-
             const mystic = this.actor.system.mystic
             const actions = []
 
-            // Magic Projection
             const mpOff = this.#getFinal(mystic.magicProjection?.imbalance?.offensive)
             const mpDef = this.#getFinal(mystic.magicProjection?.imbalance?.defensive)
             if (mpOff > 0 || mpDef > 0) {
-                actions.push({
-                    id: 'magic-projection-off',
-                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.magicProjectionOff')} (${mpOff})`,
-                    encodedValue: 'magicProjection|offensive'
-                })
-                actions.push({
-                    id: 'magic-projection-def',
-                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.magicProjectionDef')} (${mpDef})`,
-                    encodedValue: 'magicProjection|defensive'
-                })
+                actions.push({ id: 'magic-projection-off', name: `PM Ofn. (${mpOff})`, encodedValue: 'magicProjection|offensive' })
+                actions.push({ id: 'magic-projection-def', name: `PM Def. (${mpDef})`, encodedValue: 'magicProjection|defensive' })
             }
 
-            // Spells by grade
-            const spells = this.actor.items.filter(i => i.type === 'spell')
+            const spells = this.actor.items.filter(s => s.type === 'spell')
             const showGrades = Utils.getSetting('showSpellGrades', true)
             if (spells.length && showGrades) {
-                const grades = ['base', 'intermediate', 'advanced', 'arcane']
+                const GRADE_LABELS = { base: 'Base', intermediate: 'Int.', advanced: 'Avz.', arcane: 'Arc.' }
                 for (const spell of spells) {
-                    for (const grade of grades) {
+                    for (const grade of ['base', 'intermediate', 'advanced', 'arcane']) {
                         const zeon = this.#val(spell.system.grades?.[grade]?.zeon)
                         if (zeon <= 0) continue
-                        const gradeName = coreModule.api.Utils.i18n(`tokenActionHud.animabf.grade.${grade}`)
-                        actions.push({ id: `${spell.id}-${grade}`, name: `${spell.name} (${gradeName})`, encodedValue: `spell|${spell.id}>${grade}`, img: spell.img, info1: { text: `${zeon}z` } })
+                        actions.push({ id: `${spell.id}-${grade}`, name: `${spell.name} (${GRADE_LABELS[grade]})`, encodedValue: `spell|${spell.id}>${grade}`, img: spell.img, info1: { text: `${zeon}z` } })
                     }
                 }
             } else if (spells.length) {
-                for (const s of spells) {
-                    actions.push({ id: s.id, name: s.name, encodedValue: `spell|${s.id}>base`, img: s.img })
-                }
+                for (const s of spells) actions.push({ id: s.id, name: s.name, encodedValue: `spell|${s.id}>base`, img: s.img })
             }
-
             if (actions.length) this.addActions(actions, { id: 'spells', type: 'system' })
         }
 
@@ -146,44 +121,27 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (!this.#hasMystic()) return
             const summoning = this.actor.system.mystic?.summoning
             if (!summoning) return
+            const LABELS = { summon: 'Invocar', banish: 'Desterrar', bind: 'Atar', control: 'Controlar' }
             const actions = ['summon', 'banish', 'bind', 'control']
                 .filter(key => this.#getFinal(summoning[key]) > 0)
-                .map(key => ({
-                    id: `summoning-${key}`,
-                    name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.${key}`)} (${this.#getFinal(summoning[key])})`,
-                    encodedValue: `summoning|${key}`
-                }))
+                .map(key => ({ id: `summoning-${key}`, name: `${LABELS[key]} (${this.#getFinal(summoning[key])})`, encodedValue: `summoning|${key}` }))
             if (actions.length) this.addActions(actions, { id: 'summoning', type: 'system' })
         }
 
         #buildPsychicPowers () {
             if (!this.#hasPsychic()) return
-
             const psychic = this.actor.system.psychic
             const actions = []
 
-            // Psychic Projection
             const ppOff = this.#getFinal(psychic.psychicProjection?.imbalance?.offensive)
             const ppDef = this.#getFinal(psychic.psychicProjection?.imbalance?.defensive)
             if (ppOff > 0 || ppDef > 0) {
-                actions.push({
-                    id: 'psychic-projection-off',
-                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.psychicProjectionOff')} (${ppOff})`,
-                    encodedValue: 'psychicProjection|offensive'
-                })
-                actions.push({
-                    id: 'psychic-projection-def',
-                    name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.psychicProjectionDef')} (${ppDef})`,
-                    encodedValue: 'psychicProjection|defensive'
-                })
+                actions.push({ id: 'psychic-projection-off', name: `PP Ofn. (${ppOff})`, encodedValue: 'psychicProjection|offensive' })
+                actions.push({ id: 'psychic-projection-def', name: `PP Def. (${ppDef})`, encodedValue: 'psychicProjection|defensive' })
             }
 
-            // Powers
-            const powers = this.actor.items.filter(i => i.type === 'psychicPower')
-            for (const p of powers) {
-                actions.push({ id: p.id, name: p.name, encodedValue: `psychicPower|${p.id}`, img: p.img })
-            }
-
+            const powers = this.actor.items.filter(p => p.type === 'psychicPower')
+            for (const p of powers) actions.push({ id: p.id, name: p.name, encodedValue: `psychicPower|${p.id}`, img: p.img })
             if (actions.length) this.addActions(actions, { id: 'psychic-powers', type: 'system' })
         }
 
@@ -195,7 +153,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         #buildTechniques () {
-            const techniques = this.actor.items.filter(i => i.type === 'technique')
+            const techniques = this.actor.items.filter(t => t.type === 'technique')
             if (!techniques.length) return
             const actions = techniques.map(t => ({ id: t.id, name: t.name, encodedValue: `technique|${t.id}`, img: t.img }))
             this.addActions(actions, { id: 'techniques', type: 'system' })
@@ -216,7 +174,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     .filter(a => groupData[a] && this.#getFinal(groupData[a]) > 0)
                     .map(a => ({
                         id: `secondary-${a}`,
-                        name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.secondary.${a}`)} (${this.#getFinal(groupData[a])})`,
+                        name: `${i(`anima.ui.secondaries.${a}.title`)} (${this.#getFinal(groupData[a])})`,
                         encodedValue: `secondary|${a}`
                     }))
                 if (actions.length) this.addActions(actions, { id: groupKey, type: 'system' })
@@ -227,7 +185,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const primaries = this.actor.system.characteristics?.primaries
             if (!primaries) return
             const actions = CHARACTERISTICS.filter(c => primaries[c]).map(c => ({
-                id: `char-${c}`, name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.characteristic.${c}`)} (${this.#getFinal(primaries[c])})`, encodedValue: `characteristic|${c}`
+                id: `char-${c}`,
+                name: `${i(`anima.ui.characteristics.${c}`)} (${this.#getFinal(primaries[c])})`,
+                encodedValue: `characteristic|${c}`
             }))
             if (actions.length) this.addActions(actions, { id: 'characteristics', type: 'system' })
         }
@@ -235,8 +195,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #buildResistances () {
             const resistances = this.actor.system.characteristics?.secondaries?.resistances
             if (!resistances) return
+            const LABELS = { physical: 'RF', disease: 'RE', poison: 'RV', magic: 'RM', psychic: 'RP' }
             const actions = RESISTANCES.filter(r => resistances[r]).map(r => ({
-                id: `res-${r}`, name: `${coreModule.api.Utils.i18n(`tokenActionHud.animabf.resistance.${r}`)} (${this.#getFinal(resistances[r])})`, encodedValue: `resistance|${r}`
+                id: `res-${r}`, name: `${LABELS[r]} (${this.#getFinal(resistances[r])})`, encodedValue: `resistance|${r}`
             }))
             if (actions.length) this.addActions(actions, { id: 'resistances', type: 'system' })
         }
@@ -244,7 +205,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #buildInitiative () {
             const init = this.actor.system.characteristics?.secondaries?.initiative
             if (!init) return
-            this.addActions([{ id: 'initiative', name: `${coreModule.api.Utils.i18n('tokenActionHud.animabf.initiative')} (${this.#getFinal(init)})`, encodedValue: 'initiative|initiative' }], { id: 'initiative', type: 'system' })
+            this.addActions([{ id: 'initiative', name: `${i('anima.ui.characteristics.secondaries.initiative.title') !== 'anima.ui.characteristics.secondaries.initiative.title' ? i('anima.ui.characteristics.secondaries.initiative.title') : 'Iniciativa'} (${this.#getFinal(init)})`, encodedValue: 'initiative|initiative' }], { id: 'initiative', type: 'system' })
         }
 
         #buildUtility () {

@@ -44,7 +44,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const die = val >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${val}`, actor.getRollData())
             await roll.evaluate()
-            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(`tokenActionHud.animabf.${actionId}`) })
+            const LABELS = { attack: 'anima.ui.combat.baseValues.attack.title', block: 'anima.ui.combat.baseValues.block.title', dodge: 'anima.ui.combat.baseValues.dodge.title' }
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(LABELS[actionId] ?? actionId) })
         }
 
         async #rollWeaponAttack (actor, weaponId) {
@@ -148,8 +149,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #rollResistance (actor, key) {
+            const LABELS = { physical: 'RF', disease: 'RE', poison: 'RV', magic: 'RM', psychic: 'RP' }
             const val = actor.system.characteristics?.secondaries?.resistances?.[key]?.final?.value ?? 0
-            const label = game.i18n.localize(`tokenActionHud.animabf.resistance.${key}`)
+            const label = LABELS[key] ?? key
             const roll = new Roll(`1d100 + ${val}`, actor.getRollData())
             await roll.evaluate()
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${label} (${val})` })
@@ -161,7 +163,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const die = actor.system.general?.diceSettings?.characteristicDie?.value ?? '1d10'
             const roll = new Roll(`${die} + ${val}`, actor.getRollData())
             await roll.evaluate()
-            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(`tokenActionHud.animabf.characteristic.${key}`) })
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(`anima.ui.characteristics.${key}`) })
         }
 
         async #rollInitiative (actor) {
@@ -173,7 +175,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const die = val >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${val}`, actor.getRollData())
             await roll.evaluate()
-            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(`tokenActionHud.animabf.${key}`) })
+            const SLABELS = { summon: 'Invocar', banish: 'Desterrar', bind: 'Atar', control: 'Controlar' }
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: SLABELS[key] ?? key })
         }
 
         async #performUtility (token, actionId) {
