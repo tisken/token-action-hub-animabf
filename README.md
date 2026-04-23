@@ -51,7 +51,7 @@ Token Action HUD es un HUD reposicionable de acciones para un token seleccionado
 ### Instalación por Manifest URL
 
 1. En Foundry VTT, ve a **Configuración > Módulos > Instalar Módulo**.
-2. Pega la URL del manifest: `https://github.com/tisken/token-action-hub-animabf/releases/latest/download/module.json`
+2. Pega la URL del manifest: `https://raw.githubusercontent.com/tisken/token-action-hub-animabf/main/module.json`
 3. Haz clic en **Instalar**.
 
 ---
@@ -114,7 +114,6 @@ Si los callbacks nativos no están disponibles (por cambios en el sistema), se u
 Este módulo está basado en la arquitectura y patrones de los siguientes proyectos:
 
 - **[Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core)** por [Larkinabout](https://github.com/Larkinabout) — El framework base que hace posible este HUD. Licenciado bajo [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/).
-- **[Token Action HUD PF2e](https://github.com/Larkinabout/fvtt-token-action-hud-pf2e)** por [Larkinabout](https://github.com/Larkinabout) — Usado como referencia de implementación para la estructura del módulo de sistema. Licenciado bajo [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/).
 - **[Anima Beyond Fantasy System](https://github.com/AnimaBeyondDevelop/AnimaBeyondFoundry)** por [AnimaBeyondDevelop](https://github.com/AnimaBeyondDevelop) — El sistema de Foundry VTT para Anima Beyond Fantasy del cual se lee el data model de los actores.
 
 Gracias a la comunidad de Foundry VTT y a los Community Helpers del Discord por su apoyo continuo.

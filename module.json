@@ -7,7 +7,11 @@
       "name": "Community"
     }
   ],
-  "url": "",
+  "url": "https://github.com/tisken/token-action-hub-animabf",
+  "manifest": "https://raw.githubusercontent.com/tisken/token-action-hub-animabf/main/module.json",
+  "download": "https://github.com/tisken/token-action-hub-animabf/archive/refs/heads/main.zip",
+  "readme": "https://github.com/tisken/token-action-hub-animabf#readme",
+  "bugs": "https://github.com/tisken/token-action-hub-animabf/issues",
   "flags": {},
   "version": "1.0.0",
   "compatibility": {
