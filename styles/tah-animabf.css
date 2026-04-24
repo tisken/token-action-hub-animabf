@@ -6,3 +6,23 @@
     min-width: 350px;
     max-width: min(90vw, 600px);
 }
+
+/* Spell grade mini-buttons */
+.tah-abf-grade {
+    display: inline-block;
+    padding: 1px 5px;
+    margin-left: 2px;
+    border: 1px solid #666;
+    border-radius: 3px;
+    background: #333;
+    color: #fff;
+    font-size: 0.85em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.tah-abf-grade:hover {
+    background: #555;
+    border-color: #ff6400;
+    color: #ff6400;
+}

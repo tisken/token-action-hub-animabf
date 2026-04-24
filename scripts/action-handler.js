@@ -138,16 +138,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     }
                     if (!grades.length) continue
 
-                    for (const { grade, zeon } of grades) {
-                        const isFirst = grade === grades[0].grade
-                        const prefix = isFirst ? `[${lvl}] ${spell.name} ` : ''
-                        actions.push({
-                            id: `${spell.id}-${grade}`,
-                            name: `${prefix}${GRADE_LABELS[grade]}(${zeon})`,
-                            encodedValue: `spell|${spell.id}>${grade}`,
-                            cssClass: isFirst ? '' : 'shrink'
-                        })
-                    }
+                    const gradeHtml = grades.map(g =>
+                        `<span class="tah-abf-grade" data-spell-id="${spell.id}" data-grade="${g.grade}">${GRADE_LABELS[g.grade]}(${g.zeon})</span>`
+                    ).join(' ')
+
+                    actions.push({
+                        id: spell.id,
+                        name: `[${lvl}] ${spell.name} ${gradeHtml}`,
+                        useRawHtmlName: true,
+                        encodedValue: `spell|${spell.id}>${grades[0].grade}`,
+                        img: spell.img
+                    })
                 }
                 if (actions.length) this.addActions(actions, viaGroupData)
             }
