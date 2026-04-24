@@ -30,7 +30,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'magicProjection': await this.#rollMagicProjection(actor, actionId); break
             case 'psychicPower': await this.#castPsychicPower(actor, actionId); break
             case 'psychicProjection': await this.#rollPsychicProjection(actor, actionId); break
-            case 'secondary': await this.#rollSecondary(actor, actionId); break
+            case 'technique': await this.#showTechnique(actor, actionId); break
             case 'resistance': await this.#rollResistance(actor, actionId); break
             case 'characteristic': await this.#rollCharacteristic(actor, actionId); break
             case 'initiative': await this.#rollInitiative(actor); break
@@ -163,6 +163,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 ? game.i18n.localize('tokenActionHud.animabf.psychicProjectionOff')
                 : game.i18n.localize('tokenActionHud.animabf.psychicProjectionDef')
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: label })
+        }
+
+        async #showTechnique (actor, techniqueId) {
+            const technique = actor.items.get(techniqueId)
+            if (!technique) return
+            const desc = technique.system.description?.value || ''
+            const kiCosts = []
+            const STATS = { strength: 'FUE', agility: 'AGI', dexterity: 'DES', constitution: 'CON', willPower: 'VOL', power: 'POD' }
+            for (const [stat, label] of Object.entries(STATS)) {
+                const cost = technique.system[stat]?.value ?? 0
+                if (cost > 0) kiCosts.push(`${label}: ${cost}`)
+            }
+            const mk = technique.system.martialKnowledge?.value ?? 0
+            const costLine = kiCosts.length ? `<p><strong>Ki:</strong> ${kiCosts.join(' | ')}${mk ? ` | MK: ${mk}` : ''}</p>` : ''
+            const content = `<h3>${technique.name}</h3>${costLine}${desc ? `<p>${desc}</p>` : ''}`
+            await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content })
         }
 
         async #rollSecondary (actor, abilityKey) {
