@@ -31,6 +31,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'psychicPower': await this.#castPsychicPower(actor, actionId); break
             case 'psychicProjection': await this.#rollPsychicProjection(actor, actionId); break
             case 'technique': await this.#showTechnique(actor, actionId); break
+            case 'secondary': await this.#rollSecondary(actor, actionId); break
             case 'resistance': await this.#rollResistance(actor, actionId); break
             case 'characteristic': await this.#rollCharacteristic(actor, actionId); break
             case 'initiative': await this.#rollInitiative(actor); break
