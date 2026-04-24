@@ -136,7 +136,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             id: `${spell.id}-${grade}`,
                             name: GRADE_LABELS[grade],
                             encodedValue: `spell|${spell.id}>${grade}`,
-                            info1: { text: `${zeon}z` },
                             cssClass: 'shrink'
                         })
                     }
@@ -147,7 +146,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         id: `spell-${spell.id}`,
                         name: `[${lvl}] ${spell.name}`,
                         type: 'system-derived',
-                        settings: { showTitle: true }
+                        settings: { showTitle: true, sort: false }
                     }
                     this.addGroup(spellGroupData, viaGroupData)
                     this.addActions(gradeActions, spellGroupData)
