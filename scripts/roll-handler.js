@@ -205,7 +205,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const LABELS = { physical: 'RF', disease: 'RE', poison: 'RV', magic: 'RM', psychic: 'RP' }
             const val = actor.system.characteristics?.secondaries?.resistances?.[key]?.final?.value ?? 0
             const label = LABELS[key] ?? key
-            const roll = new Roll(`1d100 + ${val}`, actor.getRollData())
+            let mod = 0
+            try {
+                const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js')
+                mod = Number(await openModDialog()) || 0
+            } catch {}
+            const roll = new Roll(`1d100 + ${val} + ${mod}`, actor.getRollData())
             await roll.evaluate()
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${label} (${val})` })
         }
@@ -214,7 +219,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const ch = actor.system.characteristics?.primaries?.[key]
             const val = ch?.final?.value ?? ch?.value ?? 0
             const die = actor.system.general?.diceSettings?.characteristicDie?.value ?? '1d10'
-            const roll = new Roll(`${die} + ${val}`, actor.getRollData())
+            let mod = 0
+            try {
+                const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js')
+                mod = Number(await openModDialog()) || 0
+            } catch {}
+            const roll = new Roll(`${die} + ${val} + ${mod}`, actor.getRollData())
             await roll.evaluate()
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(`anima.ui.characteristics.${key}`) })
         }
