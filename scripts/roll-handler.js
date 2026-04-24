@@ -94,8 +94,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #castSpell (actor, actionId, event) {
             // Check if user clicked a specific grade span
             let spellId, grade
-            const gradeEl = event?.target?.closest?.('.tah-abf-grade')
-            if (gradeEl) {
+            const gradeEl = event?.target?.closest?.('.tah-abf-grade') ?? event?.target?.querySelector?.('.tah-abf-grade')
+            if (gradeEl?.dataset?.spellId && gradeEl?.dataset?.grade) {
                 spellId = gradeEl.dataset.spellId
                 grade = gradeEl.dataset.grade
             } else {

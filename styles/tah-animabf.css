@@ -1,10 +1,10 @@
 .tah-tab-group .tah-subgroup {
-    min-width: 300px;
+    min-width: 400px;
 }
 
 .tah-tab-group > .tah-subgroups-container > .tah-subgroups {
-    min-width: 350px;
-    max-width: min(90vw, 600px);
+    min-width: 450px;
+    max-width: min(90vw, 800px);
 }
 
 /* Spell grade mini-buttons */
