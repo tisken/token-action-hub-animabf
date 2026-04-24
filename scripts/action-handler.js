@@ -254,8 +254,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         #buildUtility () {
             this.addActions([{ id: 'endTurn', name: coreModule.api.Utils.i18n('tokenActionHud.endTurn'), encodedValue: 'utility|endTurn' }], { id: 'combat', type: 'system' })
             this.addActions([
-                { id: 'toggleVisibility', name: coreModule.api.Utils.i18n('tokenActionHud.toggleVisibility'), encodedValue: 'utility|toggleVisibility' },
-                { id: 'toggleCombat', name: coreModule.api.Utils.i18n('tokenActionHud.toggleCombat'), encodedValue: 'utility|toggleCombat' }
+                { id: 'toggleVisibility', name: 'Visibilidad', encodedValue: 'utility|toggleVisibility' },
+                { id: 'toggleCombat', name: 'Combate', encodedValue: 'utility|toggleCombat' }
             ], { id: 'token', type: 'system' })
         }
     }
