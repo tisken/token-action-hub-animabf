@@ -43,7 +43,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #rollCombat (actor, actionId) {
             const val = actor.system.combat?.[actionId]?.final?.value ?? 0
             const die = val >= 200 ? '1d100xamastery' : '1d100xa'
-            const roll = new Roll(`${die} + ${val}`, actor.getRollData())
+            let mod = 0
+            try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); mod = Number(await openModDialog()) || 0 } catch {}
+            const roll = new Roll(`${die} + ${val} + ${mod}`, actor.getRollData())
             await roll.evaluate()
             const LABELS = { attack: 'anima.ui.combat.baseValues.attack.title', block: 'anima.ui.combat.baseValues.block.title', dodge: 'anima.ui.combat.baseValues.dodge.title' }
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: game.i18n.localize(LABELS[actionId] ?? actionId) })
@@ -84,10 +86,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             }
 
-            // Fallback: simple roll
+            // Fallback: simple roll with mod dialog
             const atk = weapon.system.attack?.final?.value ?? 0
             const die = atk >= 200 ? '1d100xamastery' : '1d100xa'
-            const roll = new Roll(`${die} + ${atk}`, actor.getRollData())
+            let mod = 0
+            try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); mod = Number(await openModDialog()) || 0 } catch {}
+            const roll = new Roll(`${die} + ${atk} + ${mod}`, actor.getRollData())
             await roll.evaluate()
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${weapon.name} — ${game.i18n.localize('tokenActionHud.animabf.attack')}` })
         }
@@ -119,7 +123,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const mp = actor.system.mystic?.magicProjection?.imbalance?.offensive?.base?.value ?? 0
             const die = mp >= 200 ? '1d100xamastery' : '1d100xa'
-            const roll = new Roll(`${die} + ${mp}`, actor.getRollData())
+            let mod = 0
+            try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); mod = Number(await openModDialog()) || 0 } catch {}
+            const roll = new Roll(`${die} + ${mp} + ${mod}`, actor.getRollData())
             await roll.evaluate()
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: spell.name })
         }
@@ -129,7 +135,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const node = side === 'offensive' ? imbalance?.offensive : imbalance?.defensive
             const val = node?.base?.value ?? node?.final?.value ?? 0
             const die = val >= 200 ? '1d100xamastery' : '1d100xa'
-            const roll = new Roll(`${die} + ${val}`, actor.getRollData())
+            let mod = 0
+            try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); mod = Number(await openModDialog()) || 0 } catch {}
+            const roll = new Roll(`${die} + ${val} + ${mod}`, actor.getRollData())
             await roll.evaluate()
             const label = side === 'offensive'
                 ? game.i18n.localize('tokenActionHud.animabf.magicProjectionOff')
@@ -156,7 +164,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Fallback
             const pp = actor.system.psychic?.psychicPotential?.final?.value ?? 0
-            const roll = new Roll(`1d100 + ${pp}`, actor.getRollData())
+            let ppMod = 0
+            try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); ppMod = Number(await openModDialog()) || 0 } catch {}
+            const roll = new Roll(`1d100 + ${pp} + ${ppMod}`, actor.getRollData())
             await roll.evaluate()
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${power.name} — Potencial` })
         }
@@ -166,7 +176,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const node = side === 'offensive' ? imbalance?.offensive : imbalance?.defensive
             const val = node?.base?.value ?? node?.final?.value ?? 0
             const die = val >= 200 ? '1d100xamastery' : '1d100xa'
-            const roll = new Roll(`${die} + ${val}`, actor.getRollData())
+            let mod = 0
+            try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); mod = Number(await openModDialog()) || 0 } catch {}
+            const roll = new Roll(`${die} + ${val} + ${mod}`, actor.getRollData())
             await roll.evaluate()
             const label = side === 'offensive'
                 ? game.i18n.localize('tokenActionHud.animabf.psychicProjectionOff')
