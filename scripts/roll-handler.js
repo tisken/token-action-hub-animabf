@@ -92,24 +92,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #castSpell (actor, actionId) {
-            const spellId = actionId.split('>')[0]
+            const [spellId, grade] = actionId.split('>', 2)
             const spell = actor.items.get(spellId)
             if (!spell) return
 
-            // Try system's castSpellGrade with shift to open dialog
             const sheet = actor.sheet
             if (sheet) {
                 try {
                     const mod = await import('/systems/animabf/module/actor/utils/buttonCallbacks/castSpellGrade.js')
                     if (mod?.castSpellGrade) {
-                        const fakeEvent = { currentTarget: { dataset: { spellId, grade: 'base' } }, shiftKey: true, preventDefault: () => {} }
+                        const fakeEvent = { currentTarget: { dataset: { spellId, grade: grade || 'base' } }, shiftKey: true, preventDefault: () => {} }
                         await mod.castSpellGrade(sheet, fakeEvent)
                         return
                     }
                 } catch (e) { console.warn('TAH AnimaBF | castSpellGrade fallback', e) }
             }
 
-            // Fallback: simple projection roll
             const mp = actor.system.mystic?.magicProjection?.imbalance?.offensive?.base?.value ?? 0
             const die = mp >= 200 ? '1d100xamastery' : '1d100xa'
             const roll = new Roll(`${die} + ${mp}`, actor.getRollData())

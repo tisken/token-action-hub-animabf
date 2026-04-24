@@ -102,11 +102,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
             if (projActions.length) this.addActions(projActions, { id: 'spells', type: 'system' })
 
-            // Spells grouped by via, one action per spell
             const spells = this.actor.items.filter(s => s.type === 'spell')
             if (!spells.length) return
 
             const parentGroupData = { id: 'spells', type: 'system' }
+            const GRADE_LABELS = { base: 'B', intermediate: 'I', advanced: 'Av', arcane: 'A' }
+            const GRADES = ['base', 'intermediate', 'advanced', 'arcane']
 
             const byVia = new Map()
             for (const spell of spells) {
@@ -121,16 +122,36 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.addGroup(viaGroupData, parentGroupData)
 
                 const sorted = viaSpells.sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
-                const actions = sorted.map(spell => {
-                    const lvl = spell.system.level?.value ?? 0
-                    return {
-                        id: spell.id,
-                        name: `[${lvl}] ${spell.name}`,
-                        encodedValue: `spell|${spell.id}`,
-                        img: spell.img
+
+                for (const spell of sorted) {
+                    const gradeActions = []
+                    const actorInt = this.#getFinal(this.actor.system.characteristics?.primaries?.intelligence)
+                    for (const grade of GRADES) {
+                        const gradeData = spell.system.grades?.[grade]
+                        const zeon = this.#val(gradeData?.zeon)
+                        if (zeon <= 0) continue
+                        const intReq = this.#val(gradeData?.intRequired)
+                        if (intReq > 0 && actorInt < intReq) continue
+                        gradeActions.push({
+                            id: `${spell.id}-${grade}`,
+                            name: GRADE_LABELS[grade],
+                            encodedValue: `spell|${spell.id}>${grade}`,
+                            info1: { text: `${zeon}z` },
+                            cssClass: 'shrink'
+                        })
                     }
-                })
-                if (actions.length) this.addActions(actions, viaGroupData)
+                    if (!gradeActions.length) continue
+
+                    const lvl = spell.system.level?.value ?? 0
+                    const spellGroupData = {
+                        id: `spell-${spell.id}`,
+                        name: `[${lvl}] ${spell.name}`,
+                        type: 'system-derived',
+                        settings: { showTitle: true }
+                    }
+                    this.addGroup(spellGroupData, viaGroupData)
+                    this.addActions(gradeActions, spellGroupData)
+                }
             }
         }
 
