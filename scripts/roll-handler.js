@@ -97,16 +97,39 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #castSpell (actor, actionId) {
-            const [spellId, grade] = actionId.split('>', 2)
+            const [spellId, gradesStr] = actionId.split('>', 2)
             const spell = actor.items.get(spellId)
             if (!spell) return
+
+            const availableGrades = (gradesStr || 'base').split(',')
+            let grade = availableGrades[0]
+
+            // If multiple grades, let user pick
+            if (availableGrades.length > 1) {
+                const LABELS = { base: 'Base', intermediate: 'Intermedio', advanced: 'Avanzado', arcane: 'Arcano' }
+                const buttons = {}
+                for (const g of availableGrades) {
+                    const zeon = spell.system.grades?.[g]?.zeon?.value ?? 0
+                    buttons[g] = { label: `${LABELS[g]} (${zeon}z)`, callback: () => g }
+                }
+                grade = await new Promise(resolve => {
+                    new Dialog({
+                        title: spell.name,
+                        content: `<p>Elige grado para <strong>${spell.name}</strong>:</p>`,
+                        buttons,
+                        default: availableGrades[0],
+                        close: () => resolve(null)
+                    }).render(true)
+                })
+                if (!grade) return
+            }
 
             const sheet = actor.sheet
             if (sheet) {
                 try {
                     const mod = await import('/systems/animabf/module/actor/utils/buttonCallbacks/castSpellGrade.js')
                     if (mod?.castSpellGrade) {
-                        const fakeEvent = { currentTarget: { dataset: { spellId, grade: grade || 'base' } }, shiftKey: true, preventDefault: () => {} }
+                        const fakeEvent = { currentTarget: { dataset: { spellId, grade } }, shiftKey: true, preventDefault: () => {} }
                         await mod.castSpellGrade(sheet, fakeEvent)
                         return
                     }

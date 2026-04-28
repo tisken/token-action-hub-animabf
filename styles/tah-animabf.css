@@ -6,34 +6,3 @@
     min-width: 450px;
     max-width: min(90vw, 800px);
 }
-
-/* Spell per-spell subgroups: title + grade buttons in a row */
-.tah-list-subgroup[data-nest-id*="_spell-"] {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 0;
-}
-
-.tah-list-subgroup[data-nest-id*="_spell-"] > div {
-    flex-shrink: 0;
-}
-
-.tah-list-subgroup[data-nest-id*="_spell-"] > .tah-subgroups {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center;
-    gap: 2px;
-    padding: 0 4px;
-}
-
-.tah-list-subgroup[data-nest-id*="_spell-"] > .tah-subgroups > .tah-actions {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 2px;
-}
-
-.tah-list-subgroup[data-nest-id*="_spell-"] > .tah-subgroups > .tah-actions > .tah-action {
-    flex-shrink: 0;
-}
