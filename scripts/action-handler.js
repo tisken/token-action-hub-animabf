@@ -123,34 +123,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 const sorted = viaSpells.sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
                 const actorInt = this.#getFinal(this.actor.system.characteristics?.primaries?.intelligence)
+                const actions = []
 
                 for (const spell of sorted) {
-                    const gradeActions = []
+                    const lvl = spell.system.level?.value ?? 0
+                    const grades = []
                     for (const grade of GRADES) {
                         const gradeData = spell.system.grades?.[grade]
                         const zeon = this.#val(gradeData?.zeon)
                         if (zeon <= 0) continue
                         const intReq = this.#val(gradeData?.intRequired)
                         if (intReq > 0 && actorInt < intReq) continue
-                        gradeActions.push({
-                            id: `${spell.id}-${grade}`,
-                            name: `${GRADE_LABELS[grade]} (${zeon}z)`,
-                            encodedValue: `spell|${spell.id}>${grade}`,
-                            cssClass: 'shrink'
-                        })
+                        grades.push(grade)
                     }
-                    if (!gradeActions.length) continue
+                    if (!grades.length) continue
 
-                    const lvl = spell.system.level?.value ?? 0
-                    const spellGroupData = {
-                        id: `spell-${spell.id}`,
-                        name: `[${lvl}] ${spell.name}`,
-                        type: 'system-derived',
-                        settings: { showTitle: true, sort: false }
-                    }
-                    this.addGroup(spellGroupData, viaGroupData)
-                    this.addActions(gradeActions, spellGroupData)
+                    const gradeStr = grades.map(g => GRADE_LABELS[g]).join('/')
+                    actions.push({
+                        id: spell.id,
+                        name: `[${lvl}] ${spell.name} (${gradeStr})`,
+                        encodedValue: `spell|${spell.id}>${grades.join(',')}`,
+                        img: spell.img
+                    })
                 }
+                if (actions.length) this.addActions(actions, viaGroupData)
             }
         }
 

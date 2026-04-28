@@ -1,6 +1,6 @@
 {
   "name": "token-action-hud-animabf",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Token Action HUD for the ABF system in Foundry VTT",
   "license": "CC-BY-4.0",
   "type": "module",
