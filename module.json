@@ -13,7 +13,7 @@
   "readme": "https://github.com/tisken/token-action-hub-animabf#readme",
   "bugs": "https://github.com/tisken/token-action-hub-animabf/issues",
   "flags": {},
-  "version": "1.9.5",
+  "version": "2.0.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14.360"

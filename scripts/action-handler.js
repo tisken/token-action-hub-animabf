@@ -123,34 +123,34 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 const sorted = viaSpells.sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
                 const actorInt = this.#getFinal(this.actor.system.characteristics?.primaries?.intelligence)
-                const actions = []
 
                 for (const spell of sorted) {
-                    const lvl = spell.system.level?.value ?? 0
-                    const grades = []
+                    const gradeActions = []
                     for (const grade of GRADES) {
                         const gradeData = spell.system.grades?.[grade]
                         const zeon = this.#val(gradeData?.zeon)
                         if (zeon <= 0) continue
                         const intReq = this.#val(gradeData?.intRequired)
                         if (intReq > 0 && actorInt < intReq) continue
-                        grades.push({ grade, zeon })
+                        gradeActions.push({
+                            id: `${spell.id}-${grade}`,
+                            name: `${GRADE_LABELS[grade]}(${zeon})`,
+                            encodedValue: `spell|${spell.id}>${grade}`,
+                            cssClass: 'shrink'
+                        })
                     }
-                    if (!grades.length) continue
+                    if (!gradeActions.length) continue
 
-                    const gradeHtml = grades.map(g =>
-                        `<span class="tah-abf-grade" data-spell-id="${spell.id}" data-grade="${g.grade}">${GRADE_LABELS[g.grade]}(${g.zeon})</span>`
-                    ).join(' ')
-
-                    actions.push({
-                        id: spell.id,
-                        name: `[${lvl}] ${spell.name} ${gradeHtml}`,
-                        useRawHtmlName: true,
-                        encodedValue: `spell|${spell.id}>${grades[0].grade}`,
-                        img: spell.img
-                    })
+                    const lvl = spell.system.level?.value ?? 0
+                    const spellGroupData = {
+                        id: `spell-${spell.id}`,
+                        name: `[${lvl}] ${spell.name}`,
+                        type: 'system-derived',
+                        settings: { showTitle: true, sort: false }
+                    }
+                    this.addGroup(spellGroupData, viaGroupData)
+                    this.addActions(gradeActions, spellGroupData)
                 }
-                if (actions.length) this.addActions(actions, viaGroupData)
             }
         }
 

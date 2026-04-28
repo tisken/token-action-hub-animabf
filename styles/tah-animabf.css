@@ -7,22 +7,33 @@
     max-width: min(90vw, 800px);
 }
 
-/* Spell grade mini-buttons */
-.tah-abf-grade {
-    display: inline-block;
-    padding: 1px 5px;
-    margin-left: 2px;
-    border: 1px solid #666;
-    border-radius: 3px;
-    background: #333;
-    color: #fff;
-    font-size: 0.85em;
-    cursor: pointer;
-    white-space: nowrap;
+/* Spell per-spell subgroups: title + grade buttons in a row */
+.tah-list-subgroup[data-nest-id*="_spell-"] {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0;
 }
 
-.tah-abf-grade:hover {
-    background: #555;
-    border-color: #ff6400;
-    color: #ff6400;
+.tah-list-subgroup[data-nest-id*="_spell-"] > div {
+    flex-shrink: 0;
+}
+
+.tah-list-subgroup[data-nest-id*="_spell-"] > .tah-subgroups {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 2px;
+    padding: 0 4px;
+}
+
+.tah-list-subgroup[data-nest-id*="_spell-"] > .tah-subgroups > .tah-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 2px;
+}
+
+.tah-list-subgroup[data-nest-id*="_spell-"] > .tah-subgroups > .tah-actions > .tah-action {
+    flex-shrink: 0;
 }

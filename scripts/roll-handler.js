@@ -26,7 +26,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'combat': await this.#rollCombat(actor, actionId); break
             case 'weapon': await this.#rollWeaponAttack(actor, actionId); break
             case 'armor': this.renderItem(actor, actionId); break
-            case 'spell': await this.#castSpell(actor, actionId, event); break
+            case 'spell': await this.#castSpell(actor, actionId); break
             case 'magicProjection': await this.#rollMagicProjection(actor, actionId); break
             case 'psychicPower': await this.#castPsychicPower(actor, actionId); break
             case 'psychicProjection': await this.#rollPsychicProjection(actor, actionId); break
@@ -96,16 +96,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${weapon.name} — ${game.i18n.localize('tokenActionHud.animabf.attack')}` })
         }
 
-        async #castSpell (actor, actionId, event) {
-            // Check if user clicked a specific grade span
-            let spellId, grade
-            const gradeEl = event?.target?.closest?.('.tah-abf-grade') ?? event?.target?.querySelector?.('.tah-abf-grade')
-            if (gradeEl?.dataset?.spellId && gradeEl?.dataset?.grade) {
-                spellId = gradeEl.dataset.spellId
-                grade = gradeEl.dataset.grade
-            } else {
-                [spellId, grade] = actionId.split('>', 2)
-            }
+        async #castSpell (actor, actionId) {
+            const [spellId, grade] = actionId.split('>', 2)
             const spell = actor.items.get(spellId)
             if (!spell) return
 
