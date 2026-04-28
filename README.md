@@ -15,18 +15,40 @@ HUD reposicionable de acciones rápidas para tokens del sistema **ABF (Anima Bey
 - Clic derecho en un ítem para abrir su ficha.
 - HUD reposicionable con menús expandibles.
 - Personalización de grupos y acciones.
+- Diálogo de modificador en todas las tiradas.
+- Integración nativa con los diálogos del sistema ABF.
 
 ### Pestañas
 
 | Pestaña | Contenido |
 |---|---|
-| **Combate** | Ataque/Parada/Esquiva (solo desarrolladas), Armas (con diálogo de ataque nativo), Armaduras |
-| **Místico** | PM Ofn./Def., Conjuros agrupados por Vía con grados (B/I/Av/A) + coste Zeon, Invocación |
-| **Psíquico** | PP Ofn./Def., Poderes Psíquicos ordenados por nivel |
-| **Dominio** | Habilidades de Ki, Técnicas, Artes Marciales |
+| **Combate** | Ataque/Parada/Esquiva (solo desarrolladas, esquiva como fallback), Armas (diálogo de ataque nativo), Armaduras |
+| **Místico** | PM Ofn./Def., Conjuros agrupados por Vía con grados (B/I/Av/A) + selector de grado + info en chat, Invocación (solo desarrolladas) |
+| **Psíquico** | PP Ofn./Def., Poderes Psíquicos ordenados por nivel (diálogo nativo) |
+| **Dominio** | Habilidades de Ki, Técnicas (muestra descripción y costes Ki en chat), Artes Marciales |
 | **Secundarias** | Solo las desarrolladas: Atléticas, Vigor, Percepción, Intelectuales, Sociales, Subterfugio, Creativas |
-| **Atributos** | Características, Resistencias (RF/RE/RV/RM/RP), Iniciativa |
-| **Utilidad** | Fin de turno, Visibilidad, Combate |
+| **Atributos** | Características (con diálogo de modificador), Resistencias (RF/RE/RV/RM/RP), Iniciativa |
+| **Utilidad** | Finalizar Turno, Visibilidad, Combate |
+
+### Flujo de Conjuros
+
+1. Clic en el conjuro → Selector de grado (Base/Intermedio/Avanzado/Arcano)
+2. Se muestra en el chat: nombre, grado, zeon, vía y descripción
+3. Se abre el diálogo de ataque mágico del sistema
+4. Resultado del combate en el chat
+
+### Flujo de Armas
+
+- Clic en arma → Abre `AttackConfigurationDialog` del sistema (con o sin targets)
+- Fallback: tirada simple con diálogo de modificador
+
+### Filtros Inteligentes
+
+- **Conjuros**: solo muestra grados que el personaje puede lanzar (requisito de INT)
+- **Secundarias**: solo las desarrolladas (valor > 0)
+- **Combate**: solo ataque/parada/esquiva desarrolladas (esquiva siempre como fallback)
+- **Místico/Psíquico**: solo si el personaje tiene puntos invertidos
+- **Invocación**: solo las desarrolladas (parcial: ej. solo Controlar)
 
 ---
 
@@ -81,6 +103,10 @@ scripts/
 - **[Sistema ABF](https://github.com/AnimaBeyondDevelop/AnimaBeyondFoundry)** por [AnimaBeyondDevelop](https://github.com/AnimaBeyondDevelop) — Data model de actores.
 
 ---
+
+## Autor
+
+**Dragug**
 
 ## Licencia
 
