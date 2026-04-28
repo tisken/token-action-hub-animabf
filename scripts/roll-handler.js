@@ -144,7 +144,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             for (const g of availableGrades) {
                 const zeon = spell.system.grades?.[g]?.zeon?.value ?? 0
                 buttons[g] = {
-                    label: (GLABELS[g] ?? g) + ' (' + zeon + 'z)',
+                    label: (GLABELS[g] ?? g) + '<br>(' + zeon + 'z)',
                     callback: function() { launchWithGrade(g) }
                 }
             }
