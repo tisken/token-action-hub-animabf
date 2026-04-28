@@ -123,31 +123,34 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 const sorted = viaSpells.sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
                 const actorInt = this.#getFinal(this.actor.system.characteristics?.primaries?.intelligence)
-                const actions = []
 
                 for (const spell of sorted) {
-                    const lvl = spell.system.level?.value ?? 0
-                    const grades = []
+                    const gradeActions = []
                     for (const grade of GRADES) {
                         const gradeData = spell.system.grades?.[grade]
                         const zeon = this.#val(gradeData?.zeon)
                         if (zeon <= 0) continue
                         const intReq = this.#val(gradeData?.intRequired)
                         if (intReq > 0 && actorInt < intReq) continue
-                        grades.push(grade)
+                        gradeActions.push({
+                            id: `${spell.id}-${grade}`,
+                            name: `${GRADE_LABELS[grade]} (${zeon}z)`,
+                            encodedValue: `spell|${spell.id}>${grade}`,
+                            cssClass: 'shrink'
+                        })
                     }
-                    if (!grades.length) continue
+                    if (!gradeActions.length) continue
 
-                    const gradeStr = grades.map(g => GRADE_LABELS[g]).join(' · ')
-                    actions.push({
-                        id: spell.id,
+                    const lvl = spell.system.level?.value ?? 0
+                    const spellGroupData = {
+                        id: `spell-${spell.id}`,
                         name: `[${lvl}] ${spell.name}`,
-                        encodedValue: `spell|${spell.id}>${grades.join(',')}`,
-                        img: spell.img,
-                        info1: { text: gradeStr }
-                    })
+                        type: 'system-derived',
+                        settings: { showTitle: true, sort: false }
+                    }
+                    this.addGroup(spellGroupData, viaGroupData)
+                    this.addActions(gradeActions, spellGroupData)
                 }
-                if (actions.length) this.addActions(actions, viaGroupData)
             }
         }
 

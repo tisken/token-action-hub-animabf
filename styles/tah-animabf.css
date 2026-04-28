@@ -6,3 +6,12 @@
     min-width: 450px;
     max-width: min(90vw, 800px);
 }
+
+/* Spell per-spell subgroups: grade buttons horizontal */
+.tah-list-subgroup[data-nest-id*="_spell-"] > .tah-subgroups > .tah-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 3px;
+    padding: 2px 4px;
+}

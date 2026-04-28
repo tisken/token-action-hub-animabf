@@ -97,54 +97,39 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #castSpell (actor, actionId) {
-            const [spellId, gradesStr] = actionId.split('>', 2)
+            const [spellId, grade] = actionId.split('>', 2)
             const spell = actor.items.get(spellId)
             if (!spell) return
 
-            const availableGrades = (gradesStr || 'base').split(',')
+            // Post spell info to chat first
+            const GLABELS = { base: 'Base', intermediate: 'Intermedio', advanced: 'Avanzado', arcane: 'Arcano' }
+            const gradeData = spell.system.grades?.[grade]
+            const zeon = gradeData?.zeon?.value ?? 0
+            const desc = gradeData?.description?.value || spell.system.description?.value || ''
+            const spellInfo = `<h3>${spell.name} (${GLABELS[grade] ?? grade})</h3><p><strong>Zeon:</strong> ${zeon} | <strong>Vía:</strong> ${spell.system.via?.value ?? '?'}</p>${desc ? `<div>${desc}</div>` : ''}`
+            await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: spellInfo })
 
-            const launchGrade = async (grade) => {
-                const sheet = actor.sheet
-                if (sheet) {
-                    try {
-                        const mod = await import('/systems/animabf/module/actor/utils/buttonCallbacks/castSpellGrade.js')
-                        if (mod?.castSpellGrade) {
-                            const fakeEvent = { currentTarget: { dataset: { spellId, grade } }, shiftKey: true, preventDefault: () => {} }
-                            await mod.castSpellGrade(sheet, fakeEvent)
-                            return
-                        }
-                    } catch (e) { console.warn('TAH AnimaBF | castSpellGrade fallback', e) }
-                }
-                // Fallback
-                const mp = actor.system.mystic?.magicProjection?.imbalance?.offensive?.base?.value ?? 0
-                const die = mp >= 200 ? '1d100xamastery' : '1d100xa'
-                let mod2 = 0
-                try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); mod2 = Number(await openModDialog()) || 0 } catch {}
-                const roll = new Roll(`${die} + ${mp} + ${mod2}`, actor.getRollData())
-                await roll.evaluate()
-                await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: spell.name })
+            // Then launch the system's attack/defense flow
+            const sheet = actor.sheet
+            if (sheet) {
+                try {
+                    const mod = await import('/systems/animabf/module/actor/utils/buttonCallbacks/castSpellGrade.js')
+                    if (mod?.castSpellGrade) {
+                        const fakeEvent = { currentTarget: { dataset: { spellId, grade: grade || 'base' } }, shiftKey: true, preventDefault: () => {} }
+                        await mod.castSpellGrade(sheet, fakeEvent)
+                        return
+                    }
+                } catch (e) { console.warn('TAH AnimaBF | castSpellGrade fallback', e) }
             }
 
-            if (availableGrades.length === 1) {
-                await launchGrade(availableGrades[0])
-                return
-            }
-
-            const LABELS = { base: 'Base', intermediate: 'Intermedio', advanced: 'Avanzado', arcane: 'Arcano' }
-            const buttons = {}
-            for (const g of availableGrades) {
-                const zeon = spell.system.grades?.[g]?.zeon?.value ?? 0
-                buttons[g] = {
-                    label: `${LABELS[g]} (${zeon}z)`,
-                    callback: () => launchGrade(g)
-                }
-            }
-            new Dialog({
-                title: spell.name,
-                content: `<p>Elige grado para <strong>${spell.name}</strong>:</p><style>.dialog .dialog-buttons button { flex: 1; min-width: 100px; }</style>`,
-                buttons,
-                default: availableGrades[0]
-            }).render(true)
+            // Fallback
+            const mp = actor.system.mystic?.magicProjection?.imbalance?.offensive?.base?.value ?? 0
+            const die = mp >= 200 ? '1d100xamastery' : '1d100xa'
+            let mod2 = 0
+            try { const { openModDialog } = await import('/systems/animabf/module/utils/dialogs/openSimpleInputDialog.js'); mod2 = Number(await openModDialog()) || 0 } catch {}
+            const roll = new Roll(`${die} + ${mp} + ${mod2}`, actor.getRollData())
+            await roll.evaluate()
+            await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: `${spell.name} (${GLABELS[grade] ?? grade})` })
         }
 
         async #rollMagicProjection (actor, side) {
