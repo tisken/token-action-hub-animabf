@@ -216,7 +216,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #toggleEffect (actor, effectId) {
             const effect = actor.items.get(effectId)
             if (!effect) return
-            const newActive = !(effect.system.active?.value ?? false)
+            const newActive = !(effect.system.active ?? false)
             await effect.update({ 'system.active': newActive })
             const linkedAE = actor.effects.find(ae => ae.origin?.includes(effectId))
             if (linkedAE) await linkedAE.update({ disabled: !newActive })

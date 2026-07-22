@@ -246,7 +246,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const effects = this.actor.items.filter(e => e.type === 'effect')
             if (!effects.length) return
             const actions = effects.map(e => {
-                const active = e.system.active?.value ?? false
+                const active = e.system.active ?? false
                 return {
                     id: e.id,
                     name: e.name,
