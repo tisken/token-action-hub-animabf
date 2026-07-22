@@ -255,7 +255,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     cssClass: active ? 'toggle active' : 'toggle'
                 }
             })
-            this.addActions(actions, { id: 'effects', type: 'system' })
+            this.addActions(actions, { id: 'effects-list', type: 'system' })
         }
 
         #buildInitiative () {
