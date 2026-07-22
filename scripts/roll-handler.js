@@ -220,25 +220,24 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const packUuid = parts[1]
 
             if (actorItemId) {
-                // Item ya en el actor — toggle activo/inactivo
+                // Item ya en el actor — eliminar (desactivar = quitar)
                 const item = actor.items.get(actorItemId)
                 if (!item) return
-                const newActive = !(item.system.active ?? false)
-                await item.update({ 'system.active': newActive })
                 const linkedAE = actor.effects.find(ae => ae.origin === item.uuid)
-                if (linkedAE) await linkedAE.update({ disabled: !newActive })
+                const ops = [actor.deleteEmbeddedDocuments('Item', [item.id])]
+                if (linkedAE) ops.push(actor.deleteEmbeddedDocuments('ActiveEffect', [linkedAE.id]))
+                await Promise.all(ops)
             } else {
-                // Item no en el actor — importar desde compendio
+                // Item no en el actor — importar y activar
                 const source = await fromUuid(packUuid)
                 if (!source) return
                 const itemData = source.toObject()
-                itemData.system.active = false
-                itemData.system.effectData = { ...itemData.system.effectData, disabled: true }
+                itemData.system.active = true
+                itemData.system.effectData = { ...itemData.system.effectData, disabled: false }
                 const [created] = await actor.createEmbeddedDocuments('Item', [itemData])
                 if (created) {
-                    // Crear el ActiveEffect vinculado igual que hace el sheet
                     const aeData = foundry.utils.mergeObject(
-                        { name: created.name, icon: created.img || 'icons/svg/aura.svg', disabled: true, origin: created.uuid },
+                        { name: created.name, icon: created.img || 'icons/svg/aura.svg', disabled: false, origin: created.uuid },
                         created.system?.effectData ?? {},
                         { inplace: false }
                     )
