@@ -77,7 +77,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'effects',
                 name: 'Efectos',
                 groups: [
-                    { ...groups.effects, nestId: 'effects_effects-list', settings: { collapse: true } }
+                    { ...groups.effects, nestId: 'effects_effects-list' }
                 ]
             },
             {
