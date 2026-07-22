@@ -215,7 +215,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #toggleEffect (actor, actionId) {
-            const [actorItemId, packUuid] = actionId.split('|', 2)
+            console.log('TAH ABF | toggleEffect actionId:', actionId)
+            const parts = actionId.split('|')
+            const actorItemId = parts[0]
+            const packUuid = parts[1]
 
             if (actorItemId) {
                 // Item ya en el actor — toggle activo/inactivo

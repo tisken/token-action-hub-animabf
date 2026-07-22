@@ -244,8 +244,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         async #buildEffects () {
             const pack = game.packs.get('animabf.effects')
-            if (!pack) return
+            console.log('TAH ABF | effects pack:', pack)
+            if (!pack) { console.warn('TAH ABF | pack animabf.effects not found. Available:', [...game.packs.keys()]); return }
             const packItems = await pack.getDocuments()
+            console.log('TAH ABF | packItems count:', packItems.length, packItems.map(i => i.name))
             if (!packItems.length) return
 
             const actorEffects = this.actor.items.filter(e => e.type === 'effect')
@@ -265,6 +267,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         cssClass: active ? 'toggle active' : 'toggle'
                     }
                 })
+            console.log('TAH ABF | effect actions:', actions.length)
             this.addActions(actions, { id: 'effects-list', type: 'system' })
         }
 
