@@ -267,7 +267,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             for (const [folderId, items] of byFolder) {
                 const folderName = folderNames.get(folderId) ?? 'Otros'
-                const collapse = folderName !== 'Maniobras de Combate'
+                const collapse = folderName !== 'Maniobras de Combate' && folderName !== 'Estados y Accidentes'
                 const groupData = { id: `effects-${folderId}`, name: folderName, type: 'system-derived', settings: { collapse } }
                 this.addGroup(groupData, parentGroupData)
 
