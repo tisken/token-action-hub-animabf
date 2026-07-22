@@ -4,9 +4,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     RollHandler = class RollHandler extends coreModule.api.RollHandler {
         /** @override */
         async handleActionClick (event, encodedPayload) {
-            const payload = decodeURIComponent(encodedPayload).split('|', 2)
+            const payload = decodeURIComponent(encodedPayload).split('|')
             if (payload.length < 2) return super.throwInvalidValueErr()
-            const [actionType, actionId] = payload
+            const actionType = payload[0]
+            const actionId = payload.slice(1).join('|')
 
             if (this.isRenderItem() && ['weapon', 'armor', 'spell', 'psychicPower', 'technique'].includes(actionType)) {
                 return this.renderItem(this.actor, actionId.split('>')[0])
@@ -213,13 +214,35 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: label })
         }
 
-        async #toggleEffect (actor, effectId) {
-            const effect = actor.items.get(effectId)
-            if (!effect) return
-            const newActive = !(effect.system.active ?? false)
-            await effect.update({ 'system.active': newActive })
-            const linkedAE = actor.effects.find(ae => ae.origin?.includes(effectId))
-            if (linkedAE) await linkedAE.update({ disabled: !newActive })
+        async #toggleEffect (actor, actionId) {
+            const [actorItemId, packUuid] = actionId.split('|', 2)
+
+            if (actorItemId) {
+                // Item ya en el actor — toggle activo/inactivo
+                const item = actor.items.get(actorItemId)
+                if (!item) return
+                const newActive = !(item.system.active ?? false)
+                await item.update({ 'system.active': newActive })
+                const linkedAE = actor.effects.find(ae => ae.origin === item.uuid)
+                if (linkedAE) await linkedAE.update({ disabled: !newActive })
+            } else {
+                // Item no en el actor — importar desde compendio
+                const source = await fromUuid(packUuid)
+                if (!source) return
+                const itemData = source.toObject()
+                itemData.system.active = false
+                itemData.system.effectData = { ...itemData.system.effectData, disabled: true }
+                const [created] = await actor.createEmbeddedDocuments('Item', [itemData])
+                if (created) {
+                    // Crear el ActiveEffect vinculado igual que hace el sheet
+                    const aeData = foundry.utils.mergeObject(
+                        { name: created.name, icon: created.img || 'icons/svg/aura.svg', disabled: true, origin: created.uuid },
+                        created.system?.effectData ?? {},
+                        { inplace: false }
+                    )
+                    await actor.createEmbeddedDocuments('ActiveEffect', [aeData])
+                }
+            }
             Hooks.callAll('forceUpdateTokenActionHud')
         }
 

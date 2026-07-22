@@ -242,19 +242,29 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (actions.length) this.addActions(actions, { id: 'resistances', type: 'system' })
         }
 
-        #buildEffects () {
-            const effects = this.actor.items.filter(e => e.type === 'effect')
-            if (!effects.length) return
-            const actions = effects.map(e => {
-                const active = e.system.active ?? false
-                return {
-                    id: e.id,
-                    name: e.name,
-                    encodedValue: `effect|${e.id}`,
-                    img: e.img,
-                    cssClass: active ? 'toggle active' : 'toggle'
-                }
-            })
+        async #buildEffects () {
+            const pack = game.packs.get('animabf.effects')
+            if (!pack) return
+            const packItems = await pack.getDocuments()
+            if (!packItems.length) return
+
+            const actorEffects = this.actor.items.filter(e => e.type === 'effect')
+            const activeByName = new Map(actorEffects.map(e => [e.name, e]))
+
+            const actions = packItems
+                .filter(e => e.type === 'effect')
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map(e => {
+                    const actorItem = activeByName.get(e.name)
+                    const active = actorItem ? (actorItem.system.active ?? false) : false
+                    return {
+                        id: actorItem?.id ?? e.id,
+                        name: e.name,
+                        encodedValue: `effect|${actorItem?.id ?? ''}|${e.uuid}`,
+                        img: e.img,
+                        cssClass: active ? 'toggle active' : 'toggle'
+                    }
+                })
             this.addActions(actions, { id: 'effects-list', type: 'system' })
         }
 
