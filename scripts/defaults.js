@@ -17,8 +17,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name: 'Combate',
                 groups: [
                     { ...groups.combatSkills, nestId: 'combat_combat-skills' },
-                    { ...groups.weapons, nestId: 'combat_weapons' },
-                    { ...groups.armors, nestId: 'combat_armors' }
+                    { ...groups.weapons, nestId: 'combat_weapons', settings: { collapse: true } },
+                    { ...groups.armors, nestId: 'combat_armors', settings: { collapse: true } }
                 ]
             },
             {
@@ -26,8 +26,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'mystic',
                 name: 'Místico',
                 groups: [
-                    { ...groups.spells, nestId: 'mystic_spells' },
-                    { ...groups.summoning, nestId: 'mystic_summoning' }
+                    { ...groups.spells, nestId: 'mystic_spells', settings: { collapse: true } },
+                    { ...groups.summoning, nestId: 'mystic_summoning', settings: { collapse: true } }
                 ]
             },
             {
@@ -35,7 +35,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'psychic',
                 name: 'Psíquico',
                 groups: [
-                    { ...groups.psychicPowers, nestId: 'psychic_psychic-powers' }
+                    { ...groups.psychicPowers, nestId: 'psychic_psychic-powers', settings: { collapse: true } }
                 ]
             },
             {
@@ -43,9 +43,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'domine',
                 name: 'Dominio',
                 groups: [
-                    { ...groups.kiSkills, nestId: 'domine_ki-skills' },
-                    { ...groups.techniques, nestId: 'domine_techniques' },
-                    { ...groups.martialArts, nestId: 'domine_martial-arts' }
+                    { ...groups.kiSkills, nestId: 'domine_ki-skills', settings: { collapse: true } },
+                    { ...groups.techniques, nestId: 'domine_techniques', settings: { collapse: true } },
+                    { ...groups.martialArts, nestId: 'domine_martial-arts', settings: { collapse: true } }
                 ]
             },
             {
@@ -53,13 +53,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'secondaries',
                 name: 'Secundarias',
                 groups: [
-                    { ...groups.athletics, nestId: 'secondaries_athletics' },
-                    { ...groups.vigor, nestId: 'secondaries_vigor' },
-                    { ...groups.perception, nestId: 'secondaries_perception' },
-                    { ...groups.intellectual, nestId: 'secondaries_intellectual' },
-                    { ...groups.social, nestId: 'secondaries_social' },
-                    { ...groups.subterfuge, nestId: 'secondaries_subterfuge' },
-                    { ...groups.creative, nestId: 'secondaries_creative' }
+                    { ...groups.athletics, nestId: 'secondaries_athletics', settings: { collapse: true } },
+                    { ...groups.vigor, nestId: 'secondaries_vigor', settings: { collapse: true } },
+                    { ...groups.perception, nestId: 'secondaries_perception', settings: { collapse: true } },
+                    { ...groups.intellectual, nestId: 'secondaries_intellectual', settings: { collapse: true } },
+                    { ...groups.social, nestId: 'secondaries_social', settings: { collapse: true } },
+                    { ...groups.subterfuge, nestId: 'secondaries_subterfuge', settings: { collapse: true } },
+                    { ...groups.creative, nestId: 'secondaries_creative', settings: { collapse: true } }
                 ]
             },
             {
@@ -67,9 +67,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'attributes',
                 name: 'Atributos',
                 groups: [
-                    { ...groups.characteristics, nestId: 'attributes_characteristics' },
-                    { ...groups.resistances, nestId: 'attributes_resistances' },
-                    { ...groups.initiative, nestId: 'attributes_initiative' }
+                    { ...groups.characteristics, nestId: 'attributes_characteristics', settings: { collapse: true } },
+                    { ...groups.resistances, nestId: 'attributes_resistances', settings: { collapse: true } },
+                    { ...groups.initiative, nestId: 'attributes_initiative', settings: { collapse: true } }
                 ]
             },
             {
@@ -77,7 +77,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: 'effects',
                 name: 'Efectos',
                 groups: [
-                    { ...groups.effects, nestId: 'effects_effects-list' }
+                    { ...groups.effects, nestId: 'effects_effects-list', settings: { collapse: true } }
                 ]
             },
             {

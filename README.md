@@ -97,6 +97,76 @@ scripts/
 
 ---
 
+## Notas de desarrollo (contexto para retomar)
+
+### Versión actual: 2.4.3
+
+### Workflow de release
+
+```bash
+# 1. Build
+npm run build
+
+# 2. Bump version en module.json (manualmente o con sed)
+sed -i 's/"version": "X.X.X"/"version": "X.X.Y"/' module.json
+
+# 3. Commit y push
+git add -A && git commit -m "mensaje" && git push origin main
+
+# 4. Crear zip con carpeta wrapper (nombre FIJO: token-action-hud-animabf.zip)
+cd /tmp
+mkdir token-action-hud-animabf
+cp -r /tokenhub/scripts /tokenhub/styles /tokenhub/languages /tokenhub/module.json token-action-hud-animabf/
+zip -r token-action-hud-animabf.zip token-action-hud-animabf/
+rm -rf token-action-hud-animabf
+cd /tokenhub
+
+# 5. Crear release con zip + module.json como assets separados (AMBOS son obligatorios)
+/tmp/gh_2.63.2_linux_amd64/bin/gh release create vX.X.Y \
+  /tmp/token-action-hud-animabf.zip \
+  /tokenhub/module.json \
+  --title "vX.X.Y" --notes "descripción"
+```
+
+> CRÍTICO: el zip debe llamarse exactamente `token-action-hud-animabf.zip` (sin versión) porque
+> `module.json` apunta a `releases/latest/download/token-action-hud-animabf.zip`.
+> El `module.json` debe subirse también como asset independiente para que Foundry detecte
+> la nueva versión al hacer Update desde el gestor de módulos.
+
+### Herramientas
+
+- SSH key: `/root/.ssh/id_ed25519`
+- gh CLI: `/tmp/gh_2.63.2_linux_amd64/bin/gh` (autenticado como `tisken`)
+- Sistema ABF clonado en: `/tmp/AnimaBeyondFoundry` (para consultar data models)
+- Repo: `https://github.com/tisken/token-action-hub-animabf`
+
+### Arquitectura clave
+
+- TAH Core hook pattern: `Hooks.once('tokenActionHudCoreApiReady')` para definir clases
+- Tab `nestId` DEBE ser igual a `id` en defaults.js o el tab se crea como `type: 'custom'` y los subgrupos no aparecen
+- Subgrupos dentro de un tab NO pueden tener el mismo `id` que el tab padre (colisión)
+- Grupos dinámicos: `addGroup(groupData, parentGroupData)` con `type: 'system-derived'` — bypasan el caché del core
+- Imports del sistema ABF: usar rutas absolutas `/systems/animabf/...` (no relativas)
+- El módulo NO carga sus propios archivos i18n — usar `game.i18n.localize('anima.ui.*')` del sistema ABF
+
+### Tab Efectos
+
+- Carga del compendio `animabf.effects` (54 items, 8 carpetas)
+- Agrupado por carpeta del compendio usando `pack.folders` + `item.folder?.id`
+- `encodedValue`: `effect|{actorItemId}|{packUuid}` — actorItemId vacío si no está en el actor
+- Clic = importa del compendio y activa (active:true, AE habilitado)
+- Segundo clic = elimina item y AE del actor
+- El split del payload usa `payload.slice(1).join('|')` para preservar los `|` del UUID
+
+### Bugs conocidos / resueltos
+
+- `system.active` es booleano directo, NO `system.active.value`
+- `linkedAE` buscar por `ae.origin === item.uuid` (exacto), no `includes(id)`
+- Pack `animabf.effects` tiene `size:0` hasta llamar `getDocuments()` (lazy loading)
+- Foundry no actualiza el módulo si el zip tiene nombre versionado o falta `module.json` como asset
+
+---
+
 ## Reconocimientos
 
 - **[Token Action HUD Core](https://github.com/Larkinabout/fvtt-token-action-hud-core)** por [Larkinabout](https://github.com/Larkinabout) — Framework base. [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/).

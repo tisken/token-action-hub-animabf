@@ -119,7 +119,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             for (const [via, viaSpells] of [...byVia.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
                 const viaName = i(`anima.ui.mystic.spell.via.${via}.title`)
-                const viaGroupData = { id: `spells-via-${via}`, name: viaName, type: 'system-derived' }
+                const viaGroupData = { id: `spells-via-${via}`, name: viaName, type: 'system-derived', settings: { collapse: true } }
                 this.addGroup(viaGroupData, parentGroupData)
 
                 const sorted = viaSpells.sort((a, b) => (a.system.level?.value ?? 0) - (b.system.level?.value ?? 0))
@@ -267,7 +267,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             for (const [folderId, items] of byFolder) {
                 const folderName = folderNames.get(folderId) ?? 'Otros'
-                const groupData = { id: `effects-${folderId}`, name: folderName, type: 'system-derived' }
+                const collapse = folderName !== 'Maniobras de Combate'
+                const groupData = { id: `effects-${folderId}`, name: folderName, type: 'system-derived', settings: { collapse } }
                 this.addGroup(groupData, parentGroupData)
 
                 const actions = items
