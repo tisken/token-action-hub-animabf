@@ -26,7 +26,8 @@ export const GROUP = {
     initiative: { id: 'initiative', name: 'tokenActionHud.animabf.initiative', type: 'system' },
     combat: { id: 'combat', name: 'tokenActionHud.combat', type: 'system' },
     token: { id: 'token', name: 'tokenActionHud.token', type: 'system' },
-    utility: { id: 'utility', name: 'tokenActionHud.utility', type: 'system' }
+    utility: { id: 'utility', name: 'tokenActionHud.utility', type: 'system' },
+    effects: { id: 'effects', name: 'Efectos', type: 'system' }
 }
 
 export const SECONDARY_ABILITIES = {

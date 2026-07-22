@@ -31,6 +31,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'psychicPower': await this.#castPsychicPower(actor, actionId); break
             case 'psychicProjection': await this.#rollPsychicProjection(actor, actionId); break
             case 'technique': await this.#showTechnique(actor, actionId); break
+            case 'effect': await this.#toggleEffect(actor, actionId); break
             case 'secondary': await this.#rollSecondary(actor, actionId); break
             case 'resistance': await this.#rollResistance(actor, actionId); break
             case 'characteristic': await this.#rollCharacteristic(actor, actionId); break
@@ -210,6 +211,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 ? game.i18n.localize('tokenActionHud.animabf.psychicProjectionOff')
                 : game.i18n.localize('tokenActionHud.animabf.psychicProjectionDef')
             await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: label })
+        }
+
+        async #toggleEffect (actor, effectId) {
+            const effect = actor.items.get(effectId)
+            if (!effect) return
+            const newActive = !(effect.system.active?.value ?? false)
+            await effect.update({ 'system.active': newActive })
+            const linkedAE = actor.effects.find(ae => ae.origin?.includes(effectId))
+            if (linkedAE) await linkedAE.update({ disabled: !newActive })
+            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         async #showTechnique (actor, techniqueId) {

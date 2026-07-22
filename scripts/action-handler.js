@@ -24,6 +24,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 () => this.#buildCharacteristics(),
                 () => this.#buildResistances(),
                 () => this.#buildInitiative(),
+                () => this.#buildEffects(),
                 () => this.#buildUtility()
             ]
             for (const fn of builders) {
@@ -239,6 +240,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 id: `res-${r}`, name: `${LABELS[r]} (${this.#getFinal(resistances[r])})`, encodedValue: `resistance|${r}`
             }))
             if (actions.length) this.addActions(actions, { id: 'resistances', type: 'system' })
+        }
+
+        #buildEffects () {
+            const effects = this.actor.items.filter(e => e.type === 'effect')
+            if (!effects.length) return
+            const actions = effects.map(e => {
+                const active = e.system.active?.value ?? false
+                return {
+                    id: e.id,
+                    name: e.name,
+                    encodedValue: `effect|${e.id}`,
+                    img: e.img,
+                    cssClass: active ? 'toggle active' : 'toggle'
+                }
+            })
+            this.addActions(actions, { id: 'effects', type: 'system' })
         }
 
         #buildInitiative () {
