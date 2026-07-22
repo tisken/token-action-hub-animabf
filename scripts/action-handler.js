@@ -244,31 +244,47 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         async #buildEffects () {
             const pack = game.packs.get('animabf.effects')
-            console.log('TAH ABF | effects pack:', pack)
-            if (!pack) { console.warn('TAH ABF | pack animabf.effects not found. Available:', [...game.packs.keys()]); return }
+            if (!pack) return
             const packItems = await pack.getDocuments()
-            console.log('TAH ABF | packItems count:', packItems.length, packItems.map(i => i.name))
             if (!packItems.length) return
 
             const actorEffects = this.actor.items.filter(e => e.type === 'effect')
             const activeByName = new Map(actorEffects.map(e => [e.name, e]))
 
-            const actions = packItems
-                .filter(e => e.type === 'effect')
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map(e => {
-                    const actorItem = activeByName.get(e.name)
-                    const active = actorItem ? (actorItem.system.active ?? false) : false
-                    return {
-                        id: actorItem?.id ?? e.id,
-                        name: e.name,
-                        encodedValue: `effect|${actorItem?.id ?? ''}|${e.uuid}`,
-                        img: e.img,
-                        cssClass: active ? 'toggle active' : 'toggle'
-                    }
-                })
-            console.log('TAH ABF | effect actions:', actions.length)
-            this.addActions(actions, { id: 'effects-list', type: 'system' })
+            const parentGroupData = { id: 'effects-list', type: 'system' }
+
+            // Group by folder
+            const byFolder = new Map()
+            for (const item of packItems.filter(e => e.type === 'effect')) {
+                const folderId = item.folder?.id ?? item.folder ?? '_none'
+                if (!byFolder.has(folderId)) byFolder.set(folderId, [])
+                byFolder.get(folderId).push(item)
+            }
+
+            // Build folder name map from pack folders
+            const folderNames = new Map()
+            for (const folder of pack.folders) folderNames.set(folder.id, folder.name)
+
+            for (const [folderId, items] of byFolder) {
+                const folderName = folderNames.get(folderId) ?? 'Otros'
+                const groupData = { id: `effects-${folderId}`, name: folderName, type: 'system-derived' }
+                this.addGroup(groupData, parentGroupData)
+
+                const actions = items
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map(e => {
+                        const actorItem = activeByName.get(e.name)
+                        const active = actorItem ? (actorItem.system.active ?? false) : false
+                        return {
+                            id: actorItem?.id ?? e.id,
+                            name: e.name,
+                            encodedValue: `effect|${actorItem?.id ?? ''}|${e.uuid}`,
+                            img: e.img,
+                            cssClass: active ? 'toggle active' : 'toggle'
+                        }
+                    })
+                this.addActions(actions, groupData)
+            }
         }
 
         #buildInitiative () {

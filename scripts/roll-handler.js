@@ -215,7 +215,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #toggleEffect (actor, actionId) {
-            console.log('TAH ABF | toggleEffect actionId:', actionId)
             const parts = actionId.split('|')
             const actorItemId = parts[0]
             const packUuid = parts[1]
